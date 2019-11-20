@@ -1,4 +1,5 @@
 from collections import defaultdict
+from pathlib import Path
 from pprint import pprint
 
 from flask import g
@@ -7,7 +8,7 @@ import tree
 
 # def pytest_runtest_setup(item):
 #     pprint(item.name)
-from pathlib import Path
+
 def pytest_report_teststatus(report, config):
     # pprint(report.passed)
     # pprint(report.when)
@@ -15,13 +16,25 @@ def pytest_report_teststatus(report, config):
         if 'run_tests' not in g or not g.run_tests:
             return
 
+        if 'tests' not in g:
+            g.tests = defaultdict(list)
+
     except RuntimeError:
         if report.when == 'call':
             print(Path(report.location[0]).parts)
             print(type(report.location[0]))
         return
 
-    tree.add_test_to_test_tree(report, g)
+    # tree.add_test_to_test_tree(report, g)
+
+    if report.when == 'call':
+        g.tests[report.location[0]].append(
+            {
+                'name': report.location[2],
+                'passed': report.passed,
+                'nodeId': report.nodeid,
+            }
+        )
 
 
 def pytest_collection_finish(session):

@@ -19,7 +19,7 @@ def collect_tests():
 @app.route('/tests/run', methods=['GET', 'POST'])
 def run_tests():
     g.run_tests = True
-    
+    # solme commenys
     if request.method == 'GET':    
         pytest.main()
         return {'tests': g.tests}
@@ -41,6 +41,3 @@ def run_tests():
 #     g.run_tests = True
 #     pytest.main([f'{node_id}'])
 #     return {'tests': g.tests}
-
-
-app.run()
