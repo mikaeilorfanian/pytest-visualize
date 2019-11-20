@@ -1,5 +1,5 @@
 <template>
-  <v-content>
+  <!-- <v-content>
     <v-container class="fill-height" justify="center">
       <v-card class="mx-auto" raised>
         <v-toolbar color="teal" dark>
@@ -40,7 +40,84 @@
         </v-treeview>
       </v-card>
     </v-container>
-  </v-content>
+  </v-content> -->
+
+  <v-container>
+    <v-toolbar color="teal" dark>
+      <v-toolbar-title>Tests</v-toolbar-title>
+      <div class="text-center">
+        <v-btn class="ma-2" tile color="orange" light @click="collectTests()">Collect</v-btn>
+        <template v-if="nothingSelected(selection)">
+            <v-btn class="ma-2" tile color="green" @click="RunAllTests()">Run All</v-btn>
+        </template>
+        <template v-else>
+            <v-btn class="ma-2" tile color="green" @click="RunSelectedTests()">Run Selected</v-btn>
+        </template>
+      </div>
+    </v-toolbar>
+
+    <v-row>
+      <v-col>
+        <v-treeview
+          v-model="selection"
+          :items="collected_tests"
+          item-key="id"
+          selectable
+          return-object
+          open-on-click
+        >
+          <template v-slot:prepend="{ item, open }">
+            <v-icon v-if="item.file">
+              {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
+            </v-icon>
+            <v-icon color="green" v-else-if="item.testRan && item.passed">
+              {{ 'mdi-flash' }}
+            </v-icon>
+            <v-icon color="red" v-else-if="item.testRan && !item.passed">
+              {{ 'mdi-flash' }}
+            </v-icon>
+            <v-icon v-else>
+              {{ 'mdi-flash-outline' }}
+            </v-icon>
+          </template>
+        </v-treeview>
+      </v-col>
+
+      <v-divider vertical></v-divider>
+
+      <v-col class="pa-6" cols="6">
+        <template v-if="!executed_tests.length">
+          Run some tests to see the results here!
+        </template>
+        <template v-else>
+          <v-treeview
+            open-all
+            :items="executed_tests"
+            item-key="id"
+            open-on-click
+          >
+            <template v-slot:prepend="{ item, open }">
+              <v-icon v-if="item.file">
+                {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
+              </v-icon>
+              <v-icon color="green" v-else-if="item.testRan && item.passed">
+                {{ 'mdi-flash' }}
+              </v-icon>
+              <v-icon color="red" v-else-if="item.testRan && !item.passed">
+                {{ 'mdi-flash' }}
+              </v-icon>
+              <v-icon v-else>
+                {{ 'mdi-flash-outline' }}
+              </v-icon>
+            </template>
+          </v-treeview>
+            <!-- {{ node.name }} -->
+        </template>
+      </v-col>
+    </v-row>
+
+  </v-container>
+
 </template>
   <!-- <v-row align="center">
     <v-card class="mx-auto" raised>
@@ -90,8 +167,9 @@ export default {
   name: "Run",
 
   data: () => ({
-    tests: [],
-    selection: []
+    collected_tests: [],
+    selection: [],
+    executed_tests: [],
   }),
 
   // async mounted() {
@@ -102,7 +180,7 @@ export default {
   methods: {
     async collectTests () {
       const resp = await ApiService.collectTests();
-      this.tests = Test.convertResponseToCollectedTestsTree(resp);
+      this.collected_tests = Test.convertResponseToCollectedTestsTree(resp);
     },
     async RunAllTests () {
       const resp = await ApiService.runTests();
@@ -112,7 +190,7 @@ export default {
       const selectedTests = Test.filterOutTestModules(this.selection);
       console.log(selectedTests);
       const resp = await ApiService.RunSelectedTests(selectedTests);
-      this.tests = Test.convertResponseToExecutedTestsTree(resp);
+      this.executed_tests = Test.convertResponseToExecutedTestsTree(resp);
     },
     nothingSelected (selection) {
         const selectedTests = Test.filterOutTestModules(selection);
