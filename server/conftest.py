@@ -3,43 +3,38 @@ from pprint import pprint
 
 from flask import g
 
+import tree
+
 # def pytest_runtest_setup(item):
 #     pprint(item.name)
-
+from pathlib import Path
 def pytest_report_teststatus(report, config):
     # pprint(report.passed)
     # pprint(report.when)
-    if 'run_tests' not in g or not g.run_tests:
-        return
-
     try:
-        if 'tests' not in g:
-            g.tests = defaultdict(list)
+        if 'run_tests' not in g or not g.run_tests:
+            return
+
     except RuntimeError:
-        print(report.when)
+        if report.when == 'call':
+            print(Path(report.location[0]).parts)
+            print(type(report.location[0]))
         return
 
-    if report.when == 'call':
-        g.tests[report.location[0]].append(
-            {
-                'name': report.location[2], 
-                'passed': report.passed,
-                'nodeId': report.nodeid,
-            }
-        )
+    tree.add_test_to_test_tree(report, g)
 
 
 def pytest_collection_finish(session):
-    if 'collect_only' not in g or not g.collect_only:
-        return
-
     try:
+        if 'collect_only' not in g or not g.collect_only:
+            return
+   
         if 'tests' not in g:
             g.tests = defaultdict(list)
     except RuntimeError:
         for item in session.items:
             # print(item.nodeid, type(item.nodeid))
-            print(item.location)
+            # print(item.location)
             break
             # print(item.name, type(item.name))
         return
