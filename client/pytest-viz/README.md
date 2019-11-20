@@ -1,5 +1,5 @@
 # pytest-viz
-
+Node version 12.6.0 or higher and npm 6.9.0 or higher is required to setup this project.
 ## Project setup
 ```
 npm install
