@@ -35,7 +35,7 @@ def run_tests():
     if bad_test_node_ids:
         return {'error': 'Invalid test node ID'}, 400
 
-    pytest.main([test_node_ids[0]['id']])  # TODO run multiple tests, this runs only the 1st one
+    pytest.main([node['id'] for node in test_node_ids])
     return {'tests': g.tests}
 
 
