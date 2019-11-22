@@ -56,7 +56,7 @@
             activatable
             :active="active"
             return-object
-            @update:active="showError"
+            @update:active="showErrorDialog"
           >
             <template v-slot:prepend="{ item, open }">
               <v-icon v-if="item.file">
@@ -86,6 +86,29 @@
         <v-card-text v-model="error"><pre>{{error}}</pre></v-card-text>
       </v-card>
     </v-dialog>
+
+    <!-- <v-expansion-panels>
+      <v-expansion-panel
+        v-model="panel"
+        v-for="(test) in failedTests"
+        :key="test.id"
+      >
+        <v-expansion-panel-header>{{test.id}}</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <pre>{{test.errorRepr}}</pre>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-expansion-panels> -->
+
+    <v-sheet 
+      color="black lighten-2" 
+      v-model="panel"
+      v-for="(test) in failedTests"
+      :key="test.id"
+      dark
+      >
+      <pre>{{test.errorRepr}}</pre>
+    </v-sheet>
   </v-container>
 
 </template>
@@ -103,7 +126,9 @@ export default {
     executed_tests: [],
     active: [],
     dialog: false,
-    error: null
+    error: null,
+    panel: 0,  // always open the first panel only
+    failedTests: []
   }),
 
   // async mounted() {
@@ -118,18 +143,22 @@ export default {
     },
     async RunAllTests () {
       const resp = await ApiService.runTests();
-      this.executed_tests = Test.convertResponseToExecutedTestsTree(resp);
+      this.processTestExecutionResponse(resp);
     },
     async RunSelectedTests () {
       const selectedTests = Test.filterOutTestModules(this.selection);
       const resp = await ApiService.RunSelectedTests(selectedTests);
+      this.processTestExecutionResponse(resp);
+    },
+    processTestExecutionResponse (resp) {
       this.executed_tests = Test.convertResponseToExecutedTestsTree(resp);
+      this.failedTests = Test.findFailedTests(this.executed_tests);
     },
     nothingSelected (selection) {
         const selectedTests = Test.filterOutTestModules(selection);
         return selectedTests.length < 1;
     },
-    showError (selected) {
+    showErrorDialog (selected) {
       if (selected.length) {
         console.log(selected);
         console.log(selected[0].errorRepr);

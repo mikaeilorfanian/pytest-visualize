@@ -61,5 +61,14 @@ export default {
       return allSelections.filter((selection) => {
           return selection.singleTest;
       })
+  },
+  findFailedTests(allExecutedTests){
+    // var failedTest = [];
+    // for (const testModule of allExecutedTests){
+    //   if (testModule)
+    // }
+    if (!allExecutedTests[0].children[0].passed){
+      return [allExecutedTests[0].children[0]];
+    }
   }
 }
