@@ -53,6 +53,10 @@
             :items="executed_tests"
             item-key="id"
             open-on-click
+            activatable
+            :active="active"
+            return-object
+            @update:active="showError"
           >
             <template v-slot:prepend="{ item, open }">
               <v-icon v-if="item.file">
@@ -74,6 +78,14 @@
       </v-col>
     </v-row>
 
+    <v-dialog v-model="dialog" width="600px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Error details</span>
+        </v-card-title>
+        <v-card-text v-model="error"><pre>{{error}}</pre></v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 
 </template>
@@ -89,6 +101,9 @@ export default {
     collected_tests: [],
     selection: [],
     executed_tests: [],
+    active: [],
+    dialog: false,
+    error: null
   }),
 
   // async mounted() {
@@ -113,6 +128,15 @@ export default {
     nothingSelected (selection) {
         const selectedTests = Test.filterOutTestModules(selection);
         return selectedTests.length < 1;
+    },
+    showError (selected) {
+      if (selected.length) {
+        console.log(selected);
+        console.log(selected[0].errorRepr);
+        this.error = selected[0].errorRepr;
+        this.dialog = true;
+      }
+      
     }
   },
 

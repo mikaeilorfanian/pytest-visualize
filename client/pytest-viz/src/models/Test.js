@@ -16,7 +16,8 @@ function makeExecutedTestLeaf(test){
         singleTest: true,
         testRan: true,
         passed: test.passed,
-        id: test.nodeId
+        id: test.nodeId,
+        errorRepr: test.errorLog
       }
 }
 

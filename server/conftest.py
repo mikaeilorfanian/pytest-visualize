@@ -28,13 +28,16 @@ def pytest_report_teststatus(report, config):
     # tree.add_test_to_test_tree(report, g)
 
     if report.when == 'call':
-        g.tests[report.location[0]].append(
-            {
-                'name': report.location[2],
-                'passed': report.passed,
-                'nodeId': report.nodeid,
-            }
-        )
+        test = {
+            'name': report.location[2],
+            'passed': report.passed,
+            'nodeId': report.nodeid,
+        }
+
+        if not report.passed:
+            test['errorLog'] = str(report.longrepr)
+
+        g.tests[report.location[0]].append(test)
 
 
 def pytest_collection_finish(session):
