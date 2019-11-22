@@ -2,11 +2,13 @@ from flask import Flask
 from flask import g
 from flask import request
 from flask_cors import CORS
+from flask_socketio import SocketIO, emit
 import pytest
 
 
 app = Flask(__name__)
 CORS(app)
+socketio = SocketIO(app, cors_allowed_origins=['http://localhost:8080'])  # the IP of local front-end server
 
 
 @app.route('/tests')
@@ -19,8 +21,8 @@ def collect_tests():
 @app.route('/tests/run', methods=['GET', 'POST'])
 def run_tests():
     g.run_tests = True
-    # solme commenys
-    if request.method == 'GET':    
+
+    if request.method == 'GET':
         pytest.main()
         return {'tests': g.tests}
     
@@ -33,11 +35,14 @@ def run_tests():
     if bad_test_node_ids:
         return {'error': 'Invalid test node ID'}, 400
 
-    pytest.main([test_node_ids[0]['id']])  # TODO run multiple tests
+    pytest.main([test_node_ids[0]['id']])  # TODO run multiple tests, this runs only the 1st one
     return {'tests': g.tests}
+
 
 # @app.route('/tests/run/<node_id>')
 # def run_one_test(node_id):
 #     g.run_tests = True
 #     pytest.main([f'{node_id}'])
 #     return {'tests': g.tests}
+if __name__ == '__main__':
+    socketio.run(app)
