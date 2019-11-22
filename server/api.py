@@ -2,7 +2,7 @@ from flask import Flask
 from flask import g
 from flask import request
 from flask_cors import CORS
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO
 import pytest
 
 
@@ -27,7 +27,7 @@ def run_tests():
         return {'tests': g.tests}
     
     test_node_ids = request.json
-    print(test_node_ids)
+
     if not isinstance(test_node_ids, list) or len(test_node_ids) < 1:
         return {'error': 'Test node IDs should be in JSON body of request!'}, 400
     
