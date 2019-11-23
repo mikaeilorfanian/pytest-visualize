@@ -45,6 +45,7 @@
 
       <v-col class="pa-6" cols="6">
         <template v-if="!executed_tests.length">
+          <!-- <template v-if="errorMsg">{{errorMsg}}</template> -->
           Run some tests to see the results here!
         </template>
         <template v-else>
@@ -138,21 +139,16 @@ export default {
 
   methods: {
     async collectTests () {
-      const resp = await ApiService.collectTests();
-      this.collected_tests = Test.convertResponseToCollectedTestsTree(resp);
+      let syncer = new Test.Synchronizer(this);
+      syncer.collectTests();
     },
     async RunAllTests () {
-      const resp = await ApiService.runTests();
-      this.processTestExecutionResponse(resp);
+      let syncer = new Test.Synchronizer(this);
+      syncer.runAllTests();
     },
     async RunSelectedTests () {
-      const selectedTests = Test.filterOutTestModules(this.selection);
-      const resp = await ApiService.RunSelectedTests(selectedTests);
-      this.processTestExecutionResponse(resp);
-    },
-    processTestExecutionResponse (resp) {
-      this.executed_tests = Test.convertResponseToExecutedTestsTree(resp);
-      this.failedTests = Test.findFailedTests(this.executed_tests);
+      let syncer = new Test.Synchronizer(this);
+      syncer.runSelectedTests();
     },
     nothingSelected (selection) {
         const selectedTests = Test.filterOutTestModules(selection);
@@ -160,8 +156,6 @@ export default {
     },
     showErrorDialog (selected) {
       if (selected.length) {
-        console.log(selected);
-        console.log(selected[0].errorRepr);
         this.error = selected[0].errorRepr;
         this.dialog = true;
       }
@@ -171,11 +165,11 @@ export default {
 
   sockets: {
         connect: function () {
-            console.log('socket connected');
+            console.log('socket connected to backend');
             if (this.nothingSelected(this.selection)) {
-              this.collectTests();
-              this.selection = this.collected_tests;
-              this.RunAllTests();
+              // this.collectTests();
+              // this.selection = this.collected_tests;
+              // this.RunAllTests();
             }
             else {
               this.RunSelectedTests();

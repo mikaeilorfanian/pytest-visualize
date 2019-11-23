@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask import g
 from flask import request
 from flask_cors import CORS
@@ -15,27 +15,35 @@ socketio = SocketIO(app, cors_allowed_origins=['http://localhost:8080'])  # the 
 def collect_tests():
     g.collect_only = True
     pytest.main(['--collect-only'])
-    return {'tests': g.tests}
+    return {'collectedTets': g.collected_tests}
 
 
 @app.route('/tests/run', methods=['GET', 'POST'])
 def run_tests():
     g.run_tests = True
+    g.collect_only = True
 
     if request.method == 'GET':
         pytest.main()
-        return {'tests': g.tests}
+        return {'tests': g.tests, 'collectedTets': g.collected_tests}
     
     test_node_ids = request.json
 
     if not isinstance(test_node_ids, list) or len(test_node_ids) < 1:
-        return {'error': 'Test node IDs should be in JSON body of request!'}, 400
+        return {'error': 'Test node IDs should be in JSON body of request!'}
     
     bad_test_node_ids = list(filter(lambda test_node_id: test_node_id is None, test_node_ids))
     if bad_test_node_ids:
-        return {'error': 'Invalid test node ID'}, 400
+        return {'error': 'Invalid test node ID'}
 
     pytest.main([node['id'] for node in test_node_ids])
+
+    try:
+        if len(test_node_ids) != len(g.tests):
+            return {'error': f'Collect tests again! They are out of sync, one or more didnt run! Requested {len(test_node_ids)} ran {len(g.collected_tests)}'}
+    except AttributeError:
+        return {'error': 'Collect tests again! They are out of sync, one or more not found!'}
+
     return {'tests': g.tests}
 
 

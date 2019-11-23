@@ -45,8 +45,8 @@ def pytest_collection_finish(session):
         if 'collect_only' not in g or not g.collect_only:
             return
    
-        if 'tests' not in g:
-            g.tests = defaultdict(list)
+        if 'collected_tests' not in g:
+            g.collected_tests = defaultdict(list)
     except RuntimeError:
         for item in session.items:
             # print(item.nodeid, type(item.nodeid))
@@ -56,7 +56,7 @@ def pytest_collection_finish(session):
         return
 
     for item in session.items:
-        g.tests[item.location[0]].append(
+        g.collected_tests[item.location[0]].append(
             {
                 'name': item.name, 
                 # 'passed': report.passed,

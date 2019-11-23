@@ -1,3 +1,5 @@
+import ApiService from "@/services/ApiService";
+
 function makeCollectedTestLeaf(test){
     return {
         name: test.name,
@@ -21,9 +23,9 @@ function makeExecutedTestLeaf(test){
       }
 }
 
-function makeTestTree(testsResponse, makeLeafFunction) {
+function makeTestTree(tests, makeLeafFunction) {
     var tree = [];
-    const directories = Object.entries(testsResponse.tests);
+    const directories = Object.entries(tests);
 
     var i = 0;
     for (const [testModule, tests] of directories) {
@@ -42,33 +44,66 @@ function makeTestTree(testsResponse, makeLeafFunction) {
           }
         )
         i += 1;
-  
       }
-
     return tree;
-
 }
 
+function  convertResponseToCollectedTestsTree(response) {
+  return makeTestTree(response.data.collectedTets, makeCollectedTestLeaf);
+}
+
+function convertResponseToExecutedTestsTree(response) {
+  return makeTestTree(response.data.tests, makeExecutedTestLeaf);
+}
+
+function findFailedTests(allExecutedTests){
+  if (!allExecutedTests[0].children[0].passed){  // TODO: finds only 1
+    return [allExecutedTests[0].children[0]] ;
+  }
+}
+
+function filterOutTestModules(allSelections){
+  return allSelections.filter((selection) => {
+      return selection.singleTest;
+  })
+}
+
+class Synchronizer {
+  constructor(vueComponent){
+    this.vueComponent = vueComponent;
+  }
+  async collectTests(){
+    const resp = await ApiService.collectTests();
+    this.vueComponent.collected_tests = convertResponseToCollectedTestsTree(resp);
+  }
+  async runAllTests(){
+    const resp = await ApiService.runTests();
+      this.processTestExecutionResponse(resp);
+      this.vueComponent.collected_tests = convertResponseToCollectedTestsTree(resp);
+  }
+  async runSelectedTests(){
+    const selectedTests = filterOutTestModules(this.vueComponent.selection);
+    const resp = await ApiService.RunSelectedTests(selectedTests);
+    if (resp.data.error){
+      this.collectTests();
+      this.vueComponent.executed_tests = [];
+    }
+    else{
+      this.processTestExecutionResponse(resp);
+    }
+  }
+  processTestExecutionResponse (resp) {
+    let executedTests = convertResponseToExecutedTestsTree(resp);
+    this.vueComponent.executed_tests = executedTests;
+    this.vueComponent.failedTests = findFailedTests(executedTests);
+  }
+}
 
 export default {
-  convertResponseToCollectedTestsTree(response) {
-    return makeTestTree(response.data, makeCollectedTestLeaf);
-  },
-  convertResponseToExecutedTestsTree(response) {
-    return makeTestTree(response.data, makeExecutedTestLeaf);
-  },
+  Synchronizer,
   filterOutTestModules(allSelections){
       return allSelections.filter((selection) => {
           return selection.singleTest;
       })
   },
-  findFailedTests(allExecutedTests){
-    // var failedTest = [];
-    // for (const testModule of allExecutedTests){
-    //   if (testModule)
-    // }
-    if (!allExecutedTests[0].children[0].passed){
-      return [allExecutedTests[0].children[0]];
-    }
-  }
 }
