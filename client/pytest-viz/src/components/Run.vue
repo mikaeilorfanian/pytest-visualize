@@ -15,35 +15,60 @@
     </v-toolbar>
 
     <v-row>
-      <v-col>
-        <v-treeview
-          v-model="selection"
-          :items="collected_tests"
-          item-key="id"
-          selectable
-          return-object
-          open-on-click
-        >
-          <template v-slot:prepend="{ item, open }">
-            <v-icon v-if="item.file">
-              {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
-            </v-icon>
-            <v-icon color="green" v-else-if="item.testRan && item.passed">
-              {{ 'mdi-flash' }}
-            </v-icon>
-            <v-icon color="red" v-else-if="item.testRan && !item.passed">
-              {{ 'mdi-flash' }}
-            </v-icon>
-            <v-icon v-else>
-              {{ 'mdi-flash-outline' }}
-            </v-icon>
-          </template>
-        </v-treeview>
+      <v-col class="pa-6">
+        <template v-if="testCollectionInProgress">
+          <div class="text-center">
+            <v-progress-circular
+              :size="70"
+              :width="7"
+              color="orange"
+              indeterminate
+            ></v-progress-circular>
+          </div>
+        </template>
+        <template v-if="!collected_tests.length">
+          Collect tests to see them here!
+        </template>
+        <template v-else>
+          <v-treeview
+            v-model="selection"
+            :items="collected_tests"
+            item-key="id"
+            selectable
+            return-object
+            open-on-click
+          >
+            <template v-slot:prepend="{ item, open }">
+              <v-icon v-if="item.file">
+                {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
+              </v-icon>
+              <v-icon color="green" v-else-if="item.testRan && item.passed">
+                {{ 'mdi-flash' }}
+              </v-icon>
+              <v-icon color="red" v-else-if="item.testRan && !item.passed">
+                {{ 'mdi-flash' }}
+              </v-icon>
+              <v-icon v-else>
+                {{ 'mdi-flash-outline' }}
+              </v-icon>
+            </template>
+          </v-treeview>
+        </template>
       </v-col>
 
       <v-divider vertical></v-divider>
 
       <v-col class="pa-6" cols="6">
+        <template v-if="testExecutionInProgress">
+          <div class="text-center">
+            <v-progress-circular
+              :size="70"
+              :width="7"
+              color="green"
+              indeterminate
+            ></v-progress-circular>
+          </div>
+        </template>
         <template v-if="!executed_tests.length">
           <!-- <template v-if="errorMsg">{{errorMsg}}</template> -->
           Run some tests to see the results here!
@@ -129,7 +154,9 @@ export default {
     dialog: false,
     error: null,
     panel: 0,  // always open the first panel only
-    failedTests: []
+    failedTests: [],
+    testExecutionInProgress: false,
+    testCollectionInProgress: false,
   }),
 
   // async mounted() {

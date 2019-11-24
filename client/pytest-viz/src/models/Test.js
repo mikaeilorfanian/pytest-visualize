@@ -73,17 +73,23 @@ class Synchronizer {
     this.vueComponent = vueComponent;
   }
   async collectTests(){
+    this.vueComponent.testCollectionInProgress = true;
     const resp = await ApiService.collectTests();
+    this.vueComponent.testCollectionInProgress = false;
     this.vueComponent.collected_tests = convertResponseToCollectedTestsTree(resp);
   }
   async runAllTests(){
+    this.vueComponent.testExecutionInProgress = true;
     const resp = await ApiService.runTests();
-      this.processTestExecutionResponse(resp);
-      this.vueComponent.collected_tests = convertResponseToCollectedTestsTree(resp);
+    this.vueComponent.testExecutionInProgress = false;
+    this.processTestExecutionResponse(resp);
+    this.vueComponent.collected_tests = convertResponseToCollectedTestsTree(resp);
   }
   async runSelectedTests(){
     const selectedTests = filterOutTestModules(this.vueComponent.selection);
+    this.vueComponent.testExecutionInProgress = true;
     const resp = await ApiService.RunSelectedTests(selectedTests);
+    this.vueComponent.testExecutionInProgress = false;
     if (resp.data.error){
       this.collectTests();
       this.vueComponent.executed_tests = [];
