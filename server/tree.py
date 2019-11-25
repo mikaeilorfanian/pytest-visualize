@@ -136,57 +136,9 @@ class Tree:
         return self.ds
 
 
-def add_test_to_test_tree(report, flask_g):
-    return
-    if 'tests_tree' not in flask_g:
-        flask_g.tests_tree = tree = []
 
-    id_counter = 0
 
-    if report.when == 'call':
-        test = ObjTest.from_report(report)
 
-        if len(test.is_at_root) == 1: # TODO test module at root
-            if test.path_obj.name in [folder['name'] for folder in tree]:
-                filter(  # START HERE
-                    lambda foldr: foldr['name'] == test.path_obj.name,
-                    tree
-                )[0]
-                
-            # if test module is not already in the tree
-            tree.append({
-                'name': test.path_obj.name,  # TODO rename to test.module_name
-                'children': [{
-                    'name': test.name,
-                    'singleTest': True,
-                    'testRan': False,  # TODO this is ONLY for collected tests
-                    'id': test.node_id,
-                }],
-                'file': True,
-                'id': id_counter,
-            })
-            id_counter += 1
-
-        else:
-            current_list = tree
-            for path_component in test.path_obj.parts[:-1]:
-                # all of these are directories
-                # so create this directory tree in tests
-                folders = [folder['name'] for folder in current_list]
-                existing_folder = filter(
-                    lambda folder_name: folder_name == path_component,
-                    folders
-                )
-                if len(existing_folder) > 1:
-                    raise ValueError('Folder duplicated')
-                elif len(existing_folder) == 1:
-                    current_list = existing_folder[0]
-                else:
-                    current_list.append({
-                        'name': path_component,
-                        'children': [],
-                        'directory': True,
-                    })
 
 
 def generate_random_id():
@@ -215,7 +167,7 @@ class TesstMethod:
     def klass_name(self):
         parts = self.node_id.split('::')
         if len(parts) == 2:
-            return parts[0]
+            raise ValueError('No class detected, use TesstFunction instead?')
 
         return parts[1]
 
@@ -265,7 +217,7 @@ class TesstModule:
     _id: int = field(default_factory=generate_random_id)
     children: list = field(default_factory=list)
 
-    def add_function(self, func):
+    def add_function(self, func: TesstFunction):
         self.children.append(func)
 
     def get_or_add_klass(self, class_name: str) -> TesstKlass:
@@ -278,7 +230,7 @@ class TesstModule:
 
         return test_class
 
-    def _find_klass_by_name(self, class_name: str):
+    def _find_klass_by_name(self, class_name: str) -> TesstKlass:
         for child in self.children:
             if isinstance(child, TesstKlass):
                 if child.name == class_name:
@@ -374,3 +326,21 @@ class TreeRoot:
     @property
     def json(self):
         return [child.json for child in self.children]
+
+
+def add_test_to_test_tree(report, flask_g):
+    if 'tests_tree' not in flask_g:
+        flask_g.tests_tree = tree = TreeRoot()
+    else:
+        tree = flask_g.tests_tree
+
+    test_module_path = report.location[0]
+    module = tree.get_or_create_module(test_module_path)
+
+    if len(report.nodeid.split('::')) == 3:  # this is a test method, i.e. is within a class
+        test_method = TesstMethod.from_report(report)
+        test_class = module.get_or_add_klass(test_method.klass_name)
+        test_class.add_method(test_method)
+    else:  # this is a test function
+        test_function = TesstFunction.from_report(report)
+        module.add_function(test_function)

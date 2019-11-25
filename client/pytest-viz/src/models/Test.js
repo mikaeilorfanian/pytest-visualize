@@ -10,19 +10,6 @@ function makeCollectedTestLeaf(test){
     }
 }
 
-
-function makeExecutedTestLeaf(test){
-    return {
-        name: test.name,
-        file: false,
-        singleTest: true,
-        testRan: true,
-        passed: test.passed,
-        id: test.nodeId,
-        errorRepr: test.errorLog
-      }
-}
-
 function makeTestTree(tests, makeLeafFunction) {
     var tree = [];
     const directories = Object.entries(tests);
@@ -53,7 +40,7 @@ function  convertResponseToCollectedTestsTree(response) {
 }
 
 function convertResponseToExecutedTestsTree(response) {
-  return makeTestTree(response.data.tests, makeExecutedTestLeaf);
+  return response.data.executedTestsTree;
 }
 
 function findFailedTests(allExecutedTests){

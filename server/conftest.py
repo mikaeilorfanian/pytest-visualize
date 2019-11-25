@@ -25,9 +25,11 @@ def pytest_report_teststatus(report, config):
             print(type(report.location[0]))
         return
 
-    # tree.add_test_to_test_tree(report, g)
+
 
     if report.when == 'call':
+        tree.add_test_to_test_tree(report, g)
+
         test = {
             'name': report.location[2],
             'passed': report.passed,

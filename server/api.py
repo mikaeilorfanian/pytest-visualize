@@ -38,13 +38,16 @@ def run_tests():
 
     pytest.main([node['id'] for node in test_node_ids])
 
-    try:
-        if len(test_node_ids) != len(g.tests):
-            return {'error': f'Collect tests again! They are out of sync, one or more didnt run! Requested {len(test_node_ids)} ran {len(g.collected_tests)}'}
-    except AttributeError:
-        return {'error': 'Collect tests again! They are out of sync, one or more not found!'}
+    if 'tests' not in g:
+        return {'error': 'Collect tests again, tests are out of sync!'}
 
-    return {'tests': g.tests}
+    # try:
+    #     if len(test_node_ids) != len(g.tests):
+    #         return {'error': f'Collect tests again! They are out of sync, one or more didnt run! Requested {len(test_node_ids)} ran {len(g.collected_tests)}'}
+    # except AttributeError:
+    #     return {'error': 'Collect tests again! They are out of sync, one or more not found!'}
+
+    return {'tests': g.tests, 'executedTestsTree': g.tests_tree.json}
 
 
 # @app.route('/tests/run/<node_id>')

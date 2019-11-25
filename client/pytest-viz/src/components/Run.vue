@@ -78,17 +78,22 @@
             open-all
             :items="executed_tests"
             item-key="id"
-            open-on-click
             activatable
             :active="active"
             return-object
             @update:active="showErrorDialog"
           >
             <template v-slot:prepend="{ item, open }">
-              <v-icon v-if="item.file">
+              <v-icon v-if="item.isPackage">
                 {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
               </v-icon>
-              <v-icon color="green" v-else-if="item.testRan && item.passed">
+              <v-icon v-else-if="item.isModule">
+                {{ 'mdi-language-python' }}
+              </v-icon>
+              <v-icon v-else-if="item.isKlass">
+                {{ 'mdi-file-table-box-multiple-outline' }}
+              </v-icon>
+              <v-icon color="green" v-else-if="item.wasExecuted && item.passed">
                 {{ 'mdi-flash' }}
               </v-icon>
               <v-icon color="red" v-else-if="item.testRan && !item.passed">
