@@ -15,7 +15,8 @@ socketio = SocketIO(app, cors_allowed_origins=['http://localhost:8080'])  # the 
 def collect_tests():
     g.collect_only = True
     pytest.main(['--collect-only'])
-    return {'collectedTets': g.collected_tests}
+    # return {'collectedTets': g.collected_tests}
+    return {'collectedTets': g.collected_tests, 'collectedTestsTree': g.collected_tests_tree.json}
 
 
 @app.route('/tests/run', methods=['GET', 'POST'])

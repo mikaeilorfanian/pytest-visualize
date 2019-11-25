@@ -154,13 +154,13 @@ class TesstMethod:
     error: str
 
     @classmethod
-    def from_report(cls, report):
+    def from_report(cls, report, executed: bool):
         return cls(
             name=report.location[2],
-            passed=report.passed,
+            passed=report.passed if executed else False,
             node_id=report.nodeid,
-            error=report.longrepr,
-            executed=True,
+            error=report.longrepr if executed else None,
+            executed=executed,
         )
 
     @property
@@ -328,19 +328,25 @@ class TreeRoot:
         return [child.json for child in self.children]
 
 
-def add_test_to_test_tree(report, flask_g):
-    if 'tests_tree' not in flask_g:
-        flask_g.tests_tree = tree = TreeRoot()
+def add_test_to_test_tree(report, flask_g, test_executed=True):
+    if test_executed:
+        if 'tests_tree' not in flask_g:
+            flask_g.tests_tree = tree = TreeRoot()
+        else:
+            tree = flask_g.tests_tree
     else:
-        tree = flask_g.tests_tree
+        if 'collected_tests_tree' not in flask_g:
+            flask_g.collected_tests_tree = tree = TreeRoot()
+        else:
+            tree = flask_g.collected_tests_tree
 
     test_module_path = report.location[0]
     module = tree.get_or_create_module(test_module_path)
 
-    if len(report.nodeid.split('::')) == 3:  # this is a test method, i.e. is within a class
-        test_method = TesstMethod.from_report(report)
+    if len(report.nodeid.split('::')) == 3:  # this is a test method, i.e. it's within a class
+        test_method = TesstMethod.from_report(report, test_executed)
         test_class = module.get_or_add_klass(test_method.klass_name)
         test_class.add_method(test_method)
     else:  # this is a test function
-        test_function = TesstFunction.from_report(report)
+        test_function = TesstFunction.from_report(report, test_executed)
         module.add_function(test_function)

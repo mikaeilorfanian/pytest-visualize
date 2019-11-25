@@ -21,11 +21,10 @@ def pytest_report_teststatus(report, config):
 
     except RuntimeError:
         if report.when == 'call':
-            print(Path(report.location[0]).parts)
-            print(type(report.location[0]))
+            pass
+            # print(Path(report.location[0]).parts)
+            # print(type(report.location[0]))
         return
-
-
 
     if report.when == 'call':
         tree.add_test_to_test_tree(report, g)
@@ -49,6 +48,7 @@ def pytest_collection_finish(session):
    
         if 'collected_tests' not in g:
             g.collected_tests = defaultdict(list)
+
     except RuntimeError:
         for item in session.items:
             # print(item.nodeid, type(item.nodeid))
@@ -65,6 +65,12 @@ def pytest_collection_finish(session):
                 'nodeId': item.nodeid,
             }
         )
+        # print(item.location[0])
+        # print(item.name)
+        # print(item.location[2])
+        # print(item.nodeid)
+
+        tree.add_test_to_test_tree(item, g, test_executed=False)
     # print(dir(session))
     # print(session.items)
     # for item in session.items:

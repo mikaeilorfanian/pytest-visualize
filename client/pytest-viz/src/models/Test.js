@@ -36,6 +36,7 @@ function makeTestTree(tests, makeLeafFunction) {
 }
 
 function  convertResponseToCollectedTestsTree(response) {
+  return response.data.collectedTestsTree;
   return makeTestTree(response.data.collectedTets, makeCollectedTestLeaf);
 }
 
@@ -51,7 +52,7 @@ function findFailedTests(allExecutedTests){
 
 function filterOutTestModules(allSelections){
   return allSelections.filter((selection) => {
-      return selection.singleTest;
+      return selection.isSingleTest;
   })
 }
 
@@ -88,15 +89,13 @@ class Synchronizer {
   processTestExecutionResponse (resp) {
     let executedTests = convertResponseToExecutedTestsTree(resp);
     this.vueComponent.executed_tests = executedTests;
-    this.vueComponent.failedTests = findFailedTests(executedTests);
+    // this.vueComponent.failedTests = findFailedTests(executedTests);
   }
 }
 
 export default {
   Synchronizer,
   filterOutTestModules(allSelections){
-      return allSelections.filter((selection) => {
-          return selection.singleTest;
-      })
+      return filterOutTestModules(allSelections);
   },
 }
