@@ -41,7 +41,7 @@ class TesstMethod:
             'isSingleTest': True,
             'wasExecuted': self.executed,
             'passed': self.passed,
-            'errorRepr': self.error,
+            'errorRepr': str(self.error),
         }
 
 
