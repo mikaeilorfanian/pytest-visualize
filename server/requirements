@@ -17,3 +17,5 @@ six==1.13.0
 watchdog
 wcwidth==0.1.7
 Werkzeug==0.16.0
+flask-socketio
+eventlet
