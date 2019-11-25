@@ -15,8 +15,7 @@ socketio = SocketIO(app, cors_allowed_origins=['http://localhost:8080'])  # the 
 def collect_tests():
     g.collect_only = True
     pytest.main(['--collect-only'])
-    # return {'collectedTets': g.collected_tests}
-    return {'collectedTets': g.collected_tests, 'collectedTestsTree': g.collected_tests_tree.json}
+    return {'collectedTestsTree': g.collected_tests_tree.json}
 
 
 @app.route('/tests/run', methods=['GET', 'POST'])
@@ -24,9 +23,9 @@ def run_tests():
     g.run_tests = True
     g.collect_only = True
 
-    if request.method == 'GET':
+    if request.method == 'GET':  # call for running all tests
         pytest.main()
-        return {'tests': g.tests, 'collectedTets': g.collected_tests}
+        return {'collectedTestsTree': g.collected_tests_tree.json, 'executedTestsTree': g.tests_tree.json}
     
     test_node_ids = request.json
 
@@ -39,7 +38,7 @@ def run_tests():
 
     pytest.main([node['id'] for node in test_node_ids])
 
-    if 'tests' not in g:
+    if 'tests_tree' not in g or 'collected_tests_tree' not in g:
         return {'error': 'Collect tests again, tests are out of sync!'}
 
     # try:
@@ -48,7 +47,7 @@ def run_tests():
     # except AttributeError:
     #     return {'error': 'Collect tests again! They are out of sync, one or more not found!'}
 
-    return {'tests': g.tests, 'executedTestsTree': g.tests_tree.json}
+    return {'collectedTestsTree': g.collected_tests_tree.json, 'executedTestsTree': g.tests_tree.json}
 
 
 # @app.route('/tests/run/<node_id>')

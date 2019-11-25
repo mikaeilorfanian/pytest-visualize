@@ -15,10 +15,6 @@ def pytest_report_teststatus(report, config):
     try:
         if 'run_tests' not in g or not g.run_tests:
             return
-
-        if 'tests' not in g:
-            g.tests = defaultdict(list)
-
     except RuntimeError:
         if report.when == 'call':
             pass
@@ -29,25 +25,11 @@ def pytest_report_teststatus(report, config):
     if report.when == 'call':
         tree.add_test_to_test_tree(report, g)
 
-        test = {
-            'name': report.location[2],
-            'passed': report.passed,
-            'nodeId': report.nodeid,
-        }
-
-        if not report.passed:
-            test['errorLog'] = str(report.longrepr)
-
-        g.tests[report.location[0]].append(test)
-
 
 def pytest_collection_finish(session):
     try:
         if 'collect_only' not in g or not g.collect_only:
             return
-   
-        if 'collected_tests' not in g:
-            g.collected_tests = defaultdict(list)
 
     except RuntimeError:
         for item in session.items:
@@ -58,13 +40,6 @@ def pytest_collection_finish(session):
         return
 
     for item in session.items:
-        g.collected_tests[item.location[0]].append(
-            {
-                'name': item.name, 
-                # 'passed': report.passed,
-                'nodeId': item.nodeid,
-            }
-        )
         # print(item.location[0])
         # print(item.name)
         # print(item.location[2])
