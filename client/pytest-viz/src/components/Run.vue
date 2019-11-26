@@ -183,7 +183,7 @@ export default {
       syncer.runSelectedTests();
     },
     nothingSelected (selection) {
-        const selectedTests = Test.filterOutTestModules(selection);
+        const selectedTests = Test.getTestCasesOnly(selection);
         return selectedTests.length < 1;
     },
     showErrorDialog (selected) {

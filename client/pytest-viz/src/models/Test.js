@@ -1,43 +1,7 @@
 import ApiService from "@/services/ApiService";
 
-function makeCollectedTestLeaf(test){
-    return {
-        name: test.name,
-        file: false,
-        singleTest: true,
-        testRan: false,
-        id: test.nodeId
-    }
-}
-
-function makeTestTree(tests, makeLeafFunction) {
-    var tree = [];
-    const directories = Object.entries(tests);
-
-    var i = 0;
-    for (const [testModule, tests] of directories) {
-        var children = [];
-  
-        for (const test of tests) {
-          children.push(makeLeafFunction(test));
-        }
-  
-        tree.push(
-          {
-            name: testModule,
-            children: children,
-            file: true,
-            id: i
-          }
-        )
-        i += 1;
-      }
-    return tree;
-}
-
 function  convertResponseToCollectedTestsTree(response) {
   return response.data.collectedTestsTree;
-  return makeTestTree(response.data.collectedTets, makeCollectedTestLeaf);
 }
 
 function convertResponseToExecutedTestsTree(response) {
@@ -50,7 +14,7 @@ function findFailedTests(allExecutedTests){
   }
 }
 
-function filterOutTestModules(allSelections){
+function getTestCasesOnly(allSelections){
   return allSelections.filter((selection) => {
       return selection.isSingleTest;
   })
@@ -74,7 +38,7 @@ class Synchronizer {
     this.vueComponent.collected_tests = convertResponseToCollectedTestsTree(resp);
   }
   async runSelectedTests(){
-    const selectedTests = filterOutTestModules(this.vueComponent.selection);
+    const selectedTests = getTestCasesOnly(this.vueComponent.selection);
     this.vueComponent.testExecutionInProgress = true;
     const resp = await ApiService.RunSelectedTests(selectedTests);
     this.vueComponent.testExecutionInProgress = false;
@@ -95,7 +59,7 @@ class Synchronizer {
 
 export default {
   Synchronizer,
-  filterOutTestModules(allSelections){
-      return filterOutTestModules(allSelections);
+  getTestCasesOnly(allSelections){
+      return getTestCasesOnly(allSelections);
   },
 }
