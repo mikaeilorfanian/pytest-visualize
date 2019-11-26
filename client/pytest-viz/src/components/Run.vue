@@ -48,12 +48,6 @@
               <v-icon v-else-if="item.isKlass">
                 {{ 'mdi-file-table-box-multiple-outline' }}
               </v-icon>
-              <v-icon color="green" v-else-if="item.wasExecuted && item.passed">
-                {{ 'mdi-flash' }}
-              </v-icon>
-              <v-icon color="red" v-else-if="item.testRan && !item.passed">
-                {{ 'mdi-flash' }}
-              </v-icon>
               <v-icon v-else>
                 {{ 'mdi-flash-outline' }}
               </v-icon>
@@ -102,7 +96,7 @@
               <v-icon color="green" v-else-if="item.wasExecuted && item.passed">
                 {{ 'mdi-flash' }}
               </v-icon>
-              <v-icon color="red" v-else-if="item.testRan && !item.passed">
+              <v-icon color="red" v-else-if="item.wasExecuted && !item.passed">
                 {{ 'mdi-flash' }}
               </v-icon>
               <v-icon v-else>
