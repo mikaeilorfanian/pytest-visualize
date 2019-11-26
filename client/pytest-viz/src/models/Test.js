@@ -53,7 +53,7 @@ class Synchronizer {
   processTestExecutionResponse (resp) {
     let executedTests = convertResponseToExecutedTestsTree(resp);
     this.vueComponent.executed_tests = executedTests;
-    // this.vueComponent.failedTests = findFailedTests(executedTests);
+    this.vueComponent.failedTests = findFailedTests(executedTests);
   }
 }
 
