@@ -2,14 +2,14 @@
 
   <v-container>
     <v-toolbar color="teal" dark>
-      <v-toolbar-title>Tests</v-toolbar-title>
+      <v-toolbar-title>Available Tests</v-toolbar-title>
       <div class="text-center">
         <v-btn class="ma-2" tile color="orange" light @click="collectTests()">Collect</v-btn>
         <template v-if="nothingSelected(selection)">
-            <v-btn class="ma-2" tile color="green" @click="RunAllTests()">Run All</v-btn>
+            <v-btn class="ma-2" tile color="green" @click="runAllTests()">Run All</v-btn>
         </template>
         <template v-else>
-            <v-btn class="ma-2" tile color="green" @click="RunSelectedTests()">Run Selected</v-btn>
+            <v-btn class="ma-2" tile color="green" @click="runSelectedTests()">Run Selected</v-btn>
         </template>
       </div>
     </v-toolbar>
@@ -26,13 +26,13 @@
             ></v-progress-circular>
           </div>
         </template>
-        <template v-if="!collected_tests.length">
+        <template v-if="!collectedTests.length">
           Collect tests to see them here!
         </template>
         <template v-else>
           <v-treeview
             v-model="selection"
-            :items="collected_tests"
+            :items="collectedTests"
             item-key="id"
             selectable
             return-object
@@ -69,14 +69,13 @@
             ></v-progress-circular>
           </div>
         </template>
-        <template v-if="!executed_tests.length">
-          <!-- <template v-if="errorMsg">{{errorMsg}}</template> -->
+        <template v-if="!executedTests.length">
           Run some tests to see the results here!
         </template>
         <template v-else>
           <v-treeview
             open-all
-            :items="executed_tests"
+            :items="executedTests"
             item-key="id"
             activatable
             :active="active"
@@ -104,7 +103,6 @@
               </v-icon>
             </template>
           </v-treeview>
-            <!-- {{ node.name }} -->
         </template>
       </v-col>
     </v-row>
@@ -117,19 +115,6 @@
         <v-card-text v-model="error"><pre>{{error}}</pre></v-card-text>
       </v-card>
     </v-dialog>
-
-    <!-- <v-expansion-panels>
-      <v-expansion-panel
-        v-model="panel"
-        v-for="(test) in failedTests"
-        :key="test.id"
-      >
-        <v-expansion-panel-header>{{test.id}}</v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <pre>{{test.errorRepr}}</pre>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-    </v-expansion-panels> -->
 
     <v-sheet 
       color="black lighten-2" 
@@ -152,9 +137,9 @@ export default {
   name: "Run",
 
   data: () => ({
-    collected_tests: [],
+    collectedTests: [],
     selection: [],
-    executed_tests: [],
+    executedTests: [],
     active: [],
     dialog: false,
     error: null,
@@ -164,21 +149,16 @@ export default {
     testCollectionInProgress: false,
   }),
 
-  // async mounted() {
-  //   const resp = await ApiService.collectTests();
-  //   this.tests = resp.data.tests;
-  // },
-
   methods: {
     async collectTests () {
       let syncer = new Test.Synchronizer(this);
       syncer.collectTests();
     },
-    async RunAllTests () {
+    async runAllTests () {
       let syncer = new Test.Synchronizer(this);
       syncer.runAllTests();
     },
-    async RunSelectedTests () {
+    async runSelectedTests () {
       let syncer = new Test.Synchronizer(this);
       syncer.runSelectedTests();
     },
@@ -199,23 +179,11 @@ export default {
         connect: function () {
             console.log('socket connected to backend');
             if (this.nothingSelected(this.selection)) {
-              // this.collectTests();
-              // this.selection = this.collected_tests;
-              // this.RunAllTests();
             }
             else {
-              this.RunSelectedTests();
+              this.runSelectedTests();
             }
         },
-        // customEmit: function (data) {
-        //     console.log('this method was fired by the socket server. eg: io.emit("customEmit", data)')
-        // }
     },
-    // methods: {
-    //     clickButton: function (data) {
-    //         // $socket is socket.io-client instance
-    //         this.$socket.emit('emit_method', data)
-    //     }
-    // }
 };
 </script>

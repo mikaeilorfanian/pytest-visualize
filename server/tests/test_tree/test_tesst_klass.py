@@ -33,6 +33,7 @@ def test_add_one_method(method):
     assert isinstance(klass.json['id'], int)
     assert klass.json['name'] == 'TestKlass'
     assert len(klass.json['children']) == 1
+
     test_method = klass.json['children'][0]
     assert test_method['name'] == 'test_one'
     assert test_method['id'] == 'test_sth.py::TestKlass::test_one'
@@ -48,14 +49,15 @@ def test_add_two_methods(method, method_two):
     klass.add_method(method_two)
 
     assert len(klass.json['children']) == 2
-    test_method = klass.json['children'][0]
-    assert test_method['name'] == 'test_one'
-    assert test_method['id'] == 'test_sth.py::TestKlass::test_one'
-    assert test_method['isSingleTest'] is True
-    assert test_method['wasExecuted'] is True
-    assert test_method['passed'] is True
-    assert test_method['errorRepr'] is None
 
-    test_method = klass.json['children'][1]
-    assert test_method['name'] == 'test_two'
-    assert test_method['id'] == 'test_sth.py::TestKlass::test_two'
+    first_method = klass.json['children'][0]
+    assert first_method['name'] == 'test_one'
+    assert first_method['id'] == 'test_sth.py::TestKlass::test_one'
+    assert first_method['isSingleTest'] is True
+    assert first_method['wasExecuted'] is True
+    assert first_method['passed'] is True
+    assert first_method['errorRepr'] is None
+
+    second_method = klass.json['children'][1]
+    assert second_method['name'] == 'test_two'
+    assert second_method['id'] == 'test_sth.py::TestKlass::test_two'

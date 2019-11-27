@@ -50,15 +50,15 @@ def test_add_two_functions_to_module(function, function_two):
     assert module.json['name'] == 'test_sth.py'
     assert isinstance(module.json['id'], int)
 
-    func = module.json['children'][0]
-    assert func['name'] == 'test_one'
-    assert func['id'] == 'test_sth.py::test_one'
-    assert func['isSingleTest'] is True
+    first_func = module.json['children'][0]
+    assert first_func['name'] == 'test_one'
+    assert first_func['id'] == 'test_sth.py::test_one'
+    assert first_func['isSingleTest'] is True
 
-    func = module.json['children'][1]
-    assert func['name'] == 'test_two'
-    assert func['id'] == 'test_sth.py::test_two'
-    assert func['isSingleTest'] is True
+    second_func = module.json['children'][1]
+    assert second_func['name'] == 'test_two'
+    assert second_func['id'] == 'test_sth.py::test_two'
+    assert second_func['isSingleTest'] is True
 
 
 @fixture
@@ -89,13 +89,13 @@ def test_add_two_classses():
 
     assert len(module.json['children']) == 2
 
-    test_class = module.json['children'][0]
-    assert test_class['name'] == 'TestKlass'
-    assert test_class['isKlass'] is True
+    first_klass = module.json['children'][0]
+    assert first_klass['name'] == 'TestKlass'
+    assert first_klass['isKlass'] is True
 
-    test_class = module.json['children'][1]
-    assert test_class['name'] == 'TestKlass2'
-    assert test_class['isKlass'] is True
+    second_klass = module.json['children'][1]
+    assert second_klass['name'] == 'TestKlass2'
+    assert second_klass['isKlass'] is True
 
 
 def test_add_same_class_twice():

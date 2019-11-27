@@ -1,21 +1,22 @@
 import ApiService from "@/services/ApiService";
 
-function  convertResponseToCollectedTestsTree(response) {
+function  getCollectedTestsTree(response) {
   return response.data.collectedTestsTree;
 }
 
-function convertResponseToExecutedTestsTree(response) {
+function getExecutedTestsTree(response) {
   return response.data.executedTestsTree;
 }
 
 function findFailedTests(allExecutedTests){
-  if (!allExecutedTests[0].children[0].passed){  // TODO: finds only 1
-    return [allExecutedTests[0].children[0]] ;
+  const firstTest = allExecutedTests[0].children[0];
+  if (!firstTest.passed){  // TODO: finds only 1
+    return [firstTest] ;
   }
 }
 
-function getTestCasesOnly(allSelections){
-  return allSelections.filter((selection) => {
+function getTestCasesOnly(allSelectedTests){
+  return allSelectedTests.filter((selection) => {
       return selection.isSingleTest;
   })
 }
@@ -28,38 +29,38 @@ class Synchronizer {
     this.vueComponent.testCollectionInProgress = true;
     const resp = await ApiService.collectTests();
     this.vueComponent.testCollectionInProgress = false;
-    this.vueComponent.collected_tests = convertResponseToCollectedTestsTree(resp);
+    this.vueComponent.collectedTests = getCollectedTestsTree(resp);
   }
   async runAllTests(){
     this.vueComponent.testExecutionInProgress = true;
     const resp = await ApiService.runTests();
     this.vueComponent.testExecutionInProgress = false;
     this.processTestExecutionResponse(resp);
-    this.vueComponent.collected_tests = convertResponseToCollectedTestsTree(resp);
+    this.vueComponent.collectedTests = getCollectedTestsTree(resp);
   }
   async runSelectedTests(){
     const selectedTests = getTestCasesOnly(this.vueComponent.selection);
     this.vueComponent.testExecutionInProgress = true;
-    const resp = await ApiService.RunSelectedTests(selectedTests);
+    const resp = await ApiService.runSelectedTests(selectedTests);
     this.vueComponent.testExecutionInProgress = false;
     if (resp.data.error){
       this.collectTests();
-      this.vueComponent.executed_tests = [];
+      this.vueComponent.executedTests = [];
     }
     else{
       this.processTestExecutionResponse(resp);
     }
   }
   processTestExecutionResponse (resp) {
-    let executedTests = convertResponseToExecutedTestsTree(resp);
-    this.vueComponent.executed_tests = executedTests;
+    let executedTests = getExecutedTestsTree(resp);
+    this.vueComponent.executedTests = executedTests;
     this.vueComponent.failedTests = findFailedTests(executedTests);
   }
 }
 
 export default {
   Synchronizer,
-  getTestCasesOnly(allSelections){
-      return getTestCasesOnly(allSelections);
+  getTestCasesOnly(allSelectedTests){
+      return getTestCasesOnly(allSelectedTests);
   },
 }
