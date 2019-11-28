@@ -22,39 +22,36 @@ function getTestCasesOnly(allSelectedTests){
 }
 
 class Synchronizer {
-  constructor(vueComponent){
-    this.vueComponent = vueComponent;
-  }
-  async collectTests(){
-    this.vueComponent.testCollectionInProgress = true;
+  async collectTests(vueComponent){
+    vueComponent.testCollectionInProgress = true;
     const resp = await ApiService.collectTests();
-    this.vueComponent.testCollectionInProgress = false;
-    this.vueComponent.collectedTests = getCollectedTestsTree(resp);
+    vueComponent.testCollectionInProgress = false;
+    vueComponent.collectedTests = getCollectedTestsTree(resp);
   }
-  async runAllTests(){
-    this.vueComponent.testExecutionInProgress = true;
+  async runAllTests(vueComponent){
+    vueComponent.testExecutionInProgress = true;
     const resp = await ApiService.runTests();
-    this.vueComponent.testExecutionInProgress = false;
-    this.processTestExecutionResponse(resp);
-    this.vueComponent.collectedTests = getCollectedTestsTree(resp);
+    vueComponent.testExecutionInProgress = false;
+    this.processTestExecutionResponse(resp, vueComponent);
+    vueComponent.collectedTests = getCollectedTestsTree(resp);
   }
-  async runSelectedTests(){
-    const selectedTests = getTestCasesOnly(this.vueComponent.selection);
-    this.vueComponent.testExecutionInProgress = true;
+  async runSelectedTests(vueComponent){
+    const selectedTests = getTestCasesOnly(vueComponent.selection);
+    vueComponent.testExecutionInProgress = true;
     const resp = await ApiService.runSelectedTests(selectedTests);
-    this.vueComponent.testExecutionInProgress = false;
+    vueComponent.testExecutionInProgress = false;
     if (resp.data.error){
-      this.collectTests();
-      this.vueComponent.executedTests = [];
+      this.collectTests(vueComponent);
+      vueComponent.executedTests = [];
     }
     else{
-      this.processTestExecutionResponse(resp);
+      this.processTestExecutionResponse(resp, vueComponent);
     }
   }
-  processTestExecutionResponse (resp) {
+  processTestExecutionResponse (resp, vueComponent) {
     let executedTests = getExecutedTestsTree(resp);
-    this.vueComponent.executedTests = executedTests;
-    this.vueComponent.failedTests = findFailedTests(executedTests);
+    vueComponent.executedTests = executedTests;
+    vueComponent.failedTests = findFailedTests(executedTests);
   }
 }
 

@@ -95,11 +95,8 @@
               <v-icon color="green" v-else-if="item.wasExecuted && item.passed">
                 {{ 'mdi-flash' }}
               </v-icon>
-              <v-icon color="red" v-else-if="item.wasExecuted && !item.passed">
+              <v-icon color="red" v-else>
                 {{ 'mdi-flash' }}
-              </v-icon>
-              <v-icon v-else>
-                {{ 'mdi-flash-outline' }}
               </v-icon>
             </template>
           </v-treeview>
@@ -133,6 +130,8 @@
 import ApiService from "@/services/ApiService";
 import Test from "@/models/Test";
 
+let syncer = new Test.Synchronizer();
+
 export default {
   name: "Run",
 
@@ -151,16 +150,13 @@ export default {
 
   methods: {
     async collectTests () {
-      let syncer = new Test.Synchronizer(this);
-      syncer.collectTests();
+      syncer.collectTests(this);
     },
     async runAllTests () {
-      let syncer = new Test.Synchronizer(this);
-      syncer.runAllTests();
+      syncer.runAllTests(this);
     },
     async runSelectedTests () {
-      let syncer = new Test.Synchronizer(this);
-      syncer.runSelectedTests();
+      syncer.runSelectedTests(this);
     },
     nothingSelected (selection) {
         const selectedTests = Test.getTestCasesOnly(selection);

@@ -16,7 +16,7 @@ To distinguish the source of changes in the pull request, each commit has the fo
 *PRR* is a change related to a pull request review. It's basically a refactor or clean up requested by a reviewer.   
 ## Project https://github.com/mikaeilorfanian/pytest-visualize/projects/1
 Using the link above, you can track progress on
-- issues picked for implementation
+- issues picked for implementation (To-do column)
 - work in progress
 - and finally issues which are "done"
 ## Definition of "done"
