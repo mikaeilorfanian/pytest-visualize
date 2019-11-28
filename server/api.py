@@ -42,8 +42,11 @@ def run_tests():
         return {'error': 'Collect tests again, tests are out of sync!'}
 
     try:
-        if len(test_node_ids) != len(g.tests):
-            return {'error': f'Collect tests again! They are out of sync, one or more didnt run! Requested {len(test_node_ids)} ran {len(g.collected_tests)}'}
+        if len(test_node_ids) != g.executed_tests_counter:
+            return {
+                'error': f'Collect tests again! '
+                f'They are out of sync, one or more didnt run! '
+                f'Requested {len(test_node_ids)} ran {g.executed_tests_counter}'}
     except AttributeError:
         return {'error': 'Collect tests again! They are out of sync, one or more not found!'}
 

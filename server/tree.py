@@ -22,7 +22,7 @@ class TesstMethod:
             name=report.location[2],
             passed=report.passed if was_executed else False,
             node_id=report.nodeid,
-            error=report.longrepr if was_executed else None,
+            error=report.longrepr if was_executed else '',
             executed=was_executed,
         )
 
@@ -199,6 +199,9 @@ def add_test_to_test_tree(report, flask_g, was_executed=True):
             flask_g.tests_tree = tree = TreeRoot()
         else:
             tree = flask_g.tests_tree
+
+        if 'executed_tests_counter' not in flask_g:
+            flask_g.executed_tests_counter = 0
     else:
         if 'collected_tests_tree' not in flask_g:
             flask_g.collected_tests_tree = tree = TreeRoot()
@@ -215,3 +218,6 @@ def add_test_to_test_tree(report, flask_g, was_executed=True):
     else:  # this is a test function
         test_function = TesstFunction.from_report(report, was_executed)
         module.add_function(test_function)
+
+    if was_executed:
+        flask_g.executed_tests_counter += 1

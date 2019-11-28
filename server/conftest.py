@@ -57,7 +57,7 @@ def pytest_collection_finish(session):
         # print(item.location[2])
         # print(item.nodeid)
 
-        tree.add_test_to_test_tree(item, g, test_executed=False)
+        tree.add_test_to_test_tree(item, g, was_executed=False)
     # print(dir(session))
     # print(session.items)
     # for item in session.items:
