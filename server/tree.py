@@ -117,16 +117,17 @@ class TesstPackage:
     children: List[Union['TesstPackage', TesstModule]] = field(default_factory=list)
 
     def get_or_create_module(self, path_to_test_module: str) -> TesstModule:
-        package_name = Path(path_to_test_module).parts[0]
+        test_module_path = Path(path_to_test_module)
+        package_name = test_module_path.parts[0]
         if package_name != self.name:
             raise ValueError(f'Trying to add module {path_to_test_module} to the wrong package {package_name}')
 
-        if len(Path(path_to_test_module).parts) != 2:  # this is a nested path, so sub-package should add module
-            nested_path = str(Path(*Path(path_to_test_module).parts[1:]))
+        if len(test_module_path.parts) != 2:  # this is a nested path, so sub-package should add module
+            nested_path = str(Path(*test_module_path.parts[1:]))
 
             for child in self.children:  # check if sub-package already exists
                 if isinstance(child, TesstPackage):
-                    if child.name == Path(path_to_test_module).parts[1]:
+                    if child.name == test_module_path.parts[1]:
                         return child.get_or_create_module(nested_path)
 
             # sub-package doesn't exist
@@ -135,7 +136,7 @@ class TesstPackage:
             return sub_package.get_or_create_module(nested_path)
 
         # not a nested path, this package should add the module
-        module_name: str = Path(path_to_test_module).parts[-1]
+        module_name: str = test_module_path.parts[-1]
         for child in self.children:  # check if module already exists
             if isinstance(child, TesstModule):
                 if child.name == module_name:

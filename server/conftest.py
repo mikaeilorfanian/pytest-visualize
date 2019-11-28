@@ -30,7 +30,7 @@ def pytest_report_teststatus(report, config):
             # print(type(report.location[0]))
         return
 
-    if report.when == 'call':
+    if report.when == TEST_EXECUTED:
         tree.add_test_to_test_tree(report, g)
 
 
