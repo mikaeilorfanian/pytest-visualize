@@ -1,4 +1,6 @@
-from flask import Flask, jsonify
+import os
+
+from flask import Flask
 from flask import g
 from flask import request
 from flask_cors import CORS
@@ -8,9 +10,12 @@ import pytest
 from errors import UserCodeException
 
 
+CORS_IP = os.environ.get('CORS_IP') or 'http://localhost:8080'
+
+
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins=['http://localhost:8080'])  # the IP of local front-end server
+socketio = SocketIO(app, cors_allowed_origins=[CORS_IP])  # the IP of local front-end server
 
 
 @app.errorhandler(UserCodeException)
