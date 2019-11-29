@@ -59,6 +59,7 @@ class Synchronizer {
     let executedTests = getExecutedTestsTree(resp);
     vueComponent.executedTests = executedTests;
     vueComponent.failedTests = findFailedTests(executedTests);
+    vueComponent.userCodeFailure = null;
   }
 }
 
