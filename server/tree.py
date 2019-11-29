@@ -3,6 +3,8 @@ from pathlib import Path
 from random import randint
 from typing import List, Optional, Union
 
+import _pytest
+
 
 def generate_random_id():
     return randint(1, 1_000_000)  # TODO: UUID would be a proper solution here
@@ -194,7 +196,7 @@ class TreeRoot:
         return [child.json for child in self.children]
 
 
-def add_test_to_test_tree(report, flask_g, was_executed=True):
+def add_test_to_test_tree(test_item: Union[_pytest.python.Function, _pytest.reports.TestReport], flask_g, was_executed=True):
     """
     This function is used during test collection and execution.
     It builds a tree structure suitable for rendering on the front-end.
@@ -216,15 +218,15 @@ def add_test_to_test_tree(report, flask_g, was_executed=True):
         else:
             tree = flask_g.collected_tests_tree
 
-    test_module_path = report.location[0]
+    test_module_path = test_item.location[0]
     module = tree.get_or_create_module(test_module_path)
 
-    if len(report.nodeid.split('::')) == 3:  # this is a test method, i.e. it's within a class
-        test_method = TesstMethod.from_report(report, was_executed)
+    if len(test_item.nodeid.split('::')) == 3:  # this is a test method, i.e. it's within a class
+        test_method = TesstMethod.from_report(test_item, was_executed)
         test_class = module.get_or_add_klass(test_method.klass_name)
         test_class.add_method(test_method)
     else:  # this is a test function
-        test_function = TesstFunction.from_report(report, was_executed)
+        test_function = TesstFunction.from_report(test_item, was_executed)
         module.add_function(test_function)
 
     if was_executed:
