@@ -5,16 +5,27 @@ from flask_cors import CORS
 from flask_socketio import SocketIO
 import pytest
 
+from errors import UserCodeException
+
 
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins=['http://localhost:8080'])  # the IP of local front-end server
 
 
+@app.errorhandler(UserCodeException)
+def handle_error(error):
+    return jsonify(error.json)
+
+
 @app.route('/tests')
 def collect_tests():
     g.collect_only = True
     pytest.main(['--collect-only'])
+
+    if 'user_code_error' in g:
+        raise UserCodeException(g.user_code_error)
+
     return {'collectedTestsTree': g.collected_tests_tree.json}
 
 

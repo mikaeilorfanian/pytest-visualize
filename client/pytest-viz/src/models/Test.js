@@ -26,7 +26,14 @@ class Synchronizer {
     vueComponent.testCollectionInProgress = true;
     const resp = await ApiService.collectTests();
     vueComponent.testCollectionInProgress = false;
-    vueComponent.collectedTests = getCollectedTestsTree(resp);
+    if (resp.data.error){
+      vueComponent.userCodeFailure = resp.data.error.message;
+      vueComponent.collectedTests = [];
+    }
+    else{
+      vueComponent.userCodeFailure = null;
+      vueComponent.collectedTests = getCollectedTestsTree(resp);
+    }
   }
   async runAllTests(vueComponent){
     vueComponent.testExecutionInProgress = true;

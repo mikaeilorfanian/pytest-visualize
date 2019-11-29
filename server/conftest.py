@@ -5,6 +5,7 @@ from pprint import pprint
 from flask import g
 
 import tree
+from errors import UserCodeException
 
 
 TEST_EXECUTED = 'call'
@@ -65,3 +66,16 @@ def pytest_collection_finish(session):
     #     print(item.module)
     #     print(item.name, type(item.name))
         # print(dir(item))
+
+
+def pytest_internalerror(excrepr, excinfo):
+    with open('internal-error.txt', 'w') as f:
+        f.write(str(excrepr))
+
+
+def pytest_exception_interact(node, call, report):
+    g.user_code_error = node.repr_failure(call.excinfo)
+    # with open('internal-error.txt', 'w') as f:
+    #     f.write(str(node.repr_failure(call.excinfo)))
+    # print(dir(call))
+    # print(dir(node))
