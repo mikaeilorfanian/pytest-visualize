@@ -7,7 +7,7 @@ export default {
     collectTests () {
         return Api().get('tests');
     },
-    RunSelectedTests (nodeIDs) {
+    runSelectedTests (nodeIDs) {
         return Api().post(`tests/run`, nodeIDs);
     }
 }

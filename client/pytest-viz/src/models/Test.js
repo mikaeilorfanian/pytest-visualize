@@ -1,64 +1,63 @@
-function makeCollectedTestLeaf(test){
-    return {
-        name: test.name,
-        file: false,
-        singleTest: true,
-        testRan: false,
-        id: test.nodeId
+import ApiService from "@/services/ApiService";
+
+function  getCollectedTestsTree(response) {
+  return response.data.collectedTestsTree;
+}
+
+function getExecutedTestsTree(response) {
+  return response.data.executedTestsTree;
+}
+
+function findFailedTests(allExecutedTests){
+  const firstTest = allExecutedTests[0].children[0];
+  if (!firstTest.passed){  // TODO: finds only 1
+    return [firstTest] ;
+  }
+}
+
+function getTestCasesOnly(allSelectedTests){
+  return allSelectedTests.filter((selection) => {
+      return selection.isSingleTest;
+  })
+}
+
+class Synchronizer {
+  async collectTests(vueComponent){
+    vueComponent.testCollectionInProgress = true;
+    const resp = await ApiService.collectTests();
+    vueComponent.testCollectionInProgress = false;
+    vueComponent.collectedTests = getCollectedTestsTree(resp);
+  }
+  async runAllTests(vueComponent){
+    vueComponent.testExecutionInProgress = true;
+    const resp = await ApiService.runTests();
+    vueComponent.testExecutionInProgress = false;
+    this.processTestExecutionResponse(resp, vueComponent);
+    vueComponent.collectedTests = getCollectedTestsTree(resp);
+  }
+  async runSelectedTests(vueComponent){
+    const selectedTests = getTestCasesOnly(vueComponent.selection);
+    vueComponent.testExecutionInProgress = true;
+    const resp = await ApiService.runSelectedTests(selectedTests);
+    vueComponent.testExecutionInProgress = false;
+    if (resp.data.error){
+      this.collectTests(vueComponent);
+      vueComponent.executedTests = [];
     }
+    else{
+      this.processTestExecutionResponse(resp, vueComponent);
+    }
+  }
+  processTestExecutionResponse (resp, vueComponent) {
+    let executedTests = getExecutedTestsTree(resp);
+    vueComponent.executedTests = executedTests;
+    vueComponent.failedTests = findFailedTests(executedTests);
+  }
 }
-
-
-function makeExecutedTestLeaf(test){
-    return {
-        name: test.name,
-        file: false,
-        singleTest: true,
-        testRan: true,
-        passed: test.passed,
-        id: test.nodeId
-      }
-}
-
-function makeTestTree(testsResponse, makeLeafFunction) {
-    var tree = [];
-    const directories = Object.entries(testsResponse.tests);
-
-    var i = 0;
-    for (const [testModule, tests] of directories) {
-        var children = [];
-  
-        for (const test of tests) {
-          children.push(makeLeafFunction(test));
-        }
-  
-        tree.push(
-          {
-            name: testModule,
-            children: children,
-            file: true,
-            id: i
-          }
-        )
-        i += 1;
-  
-      }
-
-    return tree;
-
-}
-
 
 export default {
-  convertResponseToCollectedTestsTree(response) {
-    return makeTestTree(response.data, makeCollectedTestLeaf);
+  Synchronizer,
+  getTestCasesOnly(allSelectedTests){
+      return getTestCasesOnly(allSelectedTests);
   },
-  convertResponseToExecutedTestsTree(response) {
-    return makeTestTree(response.data, makeExecutedTestLeaf);
-  },
-  filterOutTestModules(allSelections){
-      return allSelections.filter((selection) => {
-          return selection.singleTest;
-      })
-  }
 }
