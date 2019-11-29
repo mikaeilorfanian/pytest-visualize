@@ -195,6 +195,13 @@ class TreeRoot:
 
 
 def add_test_to_test_tree(report, flask_g, was_executed=True):
+    """
+    This function is used during test collection and execution.
+    It builds a tree structure suitable for rendering on the front-end.
+    It also keeps count of how many tests were collected or executed.
+    All this data is stored in flask's g object which stays the same between calls to the different
+    pytest hooks we're using. `g` is a per request object, meaning it won't get mixed up with `g`s in other requests.
+    """
     if was_executed:
         if 'tests_tree' not in flask_g:
             flask_g.tests_tree = tree = TreeRoot()
