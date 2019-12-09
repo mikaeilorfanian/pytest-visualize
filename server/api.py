@@ -41,6 +41,11 @@ def run_tests():
 
     if request.method == 'GET':  # call for running all tests
         pytest.main()
+
+        if 'tests_tree' not in g or 'collected_tests_tree' not in g:
+            if 'user_code_error' in g:
+                raise UserCodeException(g.user_code_error)
+
         return {'collectedTestsTree': g.collected_tests_tree.json, 'executedTestsTree': g.tests_tree.json}
     
     test_node_ids = request.json

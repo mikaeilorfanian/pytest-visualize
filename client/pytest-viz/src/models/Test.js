@@ -40,9 +40,23 @@ class Synchronizer {
   async runAllTests(vueComponent){
     vueComponent.testExecutionInProgress = true;
     const resp = await ApiService.runTests();
-    vueComponent.testExecutionInProgress = false; // TODO handle user code error here also
-    this.processTestExecutionResponse(resp, vueComponent);
-    vueComponent.collectedTests = getCollectedTestsTree(resp);
+    vueComponent.testExecutionInProgress = false;
+    if (resp.data.error){
+      if (resp.data.error.code == 1001){
+          vueComponent.userCodeFailure = resp.data.error.message;
+          vueComponent.collectedTests = [];
+          vueComponent.executedTests = [];
+          vueComponent.failedTests = [];
+      }
+      else{
+          this.collectTests(vueComponent);
+          vueComponent.executedTests = [];
+      }
+    }
+    else{
+      this.processTestExecutionResponse(resp, vueComponent);
+      vueComponent.collectedTests = getCollectedTestsTree(resp);
+    }
   }
   async runSelectedTests(vueComponent){
     const selectedTests = getTestCasesOnly(vueComponent.selection);
