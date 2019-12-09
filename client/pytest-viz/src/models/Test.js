@@ -15,25 +15,54 @@ function findFailedTests(allExecutedTests){
   }
 }
 
-function getTestCasesOnly(allSelectedTests){
+function getTestCasesOnly(allSelectedTests){  // TODO rename this function to getSelectedTestsFromTree
   return allSelectedTests.filter((selection) => {
       return selection.isSingleTest;
   })
 }
 
 class Synchronizer {
+  userCodeNotCompiling(response, vueComponent){
+    vueComponent.userCodeFailure = response.data.error.message;
+    vueComponent.collectedTests = [];
+    vueComponent.executedTests = [];
+    vueComponent.failedTests = [];
+  }
+  userCodeUpdated(vueComponent){
+    this.collectTests(vueComponent);
+    vueComponent.executedTests = [];
+  }
+  handleError(response, vueComponent){
+    if (response.data.error.code == 1001){
+      this.userCodeNotCompiling(response, vueComponent);
+    }
+    else{  // user code was updated and led to inconsistent state 
+      this.userCodeUpdated(vueComponent);
+    }
+  }
   async collectTests(vueComponent){
     vueComponent.testCollectionInProgress = true;
     const resp = await ApiService.collectTests();
     vueComponent.testCollectionInProgress = false;
-    vueComponent.collectedTests = getCollectedTestsTree(resp);
+    if (resp.data.error){
+      this.handleError(resp, vueComponent);
+    }
+    else{
+      vueComponent.userCodeFailure = null;
+      vueComponent.collectedTests = getCollectedTestsTree(resp);
+    }
   }
   async runAllTests(vueComponent){
     vueComponent.testExecutionInProgress = true;
     const resp = await ApiService.runTests();
     vueComponent.testExecutionInProgress = false;
-    this.processTestExecutionResponse(resp, vueComponent);
-    vueComponent.collectedTests = getCollectedTestsTree(resp);
+    if (resp.data.error){
+      this.handleError(resp, vueComponent);
+    }
+    else{
+      this.processTestExecutionResponse(resp, vueComponent);
+      vueComponent.collectedTests = getCollectedTestsTree(resp);
+    }
   }
   async runSelectedTests(vueComponent){
     const selectedTests = getTestCasesOnly(vueComponent.selection);
@@ -41,8 +70,7 @@ class Synchronizer {
     const resp = await ApiService.runSelectedTests(selectedTests);
     vueComponent.testExecutionInProgress = false;
     if (resp.data.error){
-      this.collectTests(vueComponent);
-      vueComponent.executedTests = [];
+      this.handleError(resp, vueComponent);
     }
     else{
       this.processTestExecutionResponse(resp, vueComponent);
@@ -52,6 +80,7 @@ class Synchronizer {
     let executedTests = getExecutedTestsTree(resp);
     vueComponent.executedTests = executedTests;
     vueComponent.failedTests = findFailedTests(executedTests);
+    vueComponent.userCodeFailure = null;
   }
 }
 

@@ -1,25 +1,36 @@
 import os
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask import g
 from flask import request
 from flask_cors import CORS
 from flask_socketio import SocketIO
 import pytest
 
+from errors import UserCodeException
 
-CORS_IP = os.environ.get('CORS_IP') or 'http://localhost:8080'
+
+CORS_IP = os.environ.get('CORS_IP') or 'http://localhost:8080'  # the IP of local front-end server
 
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins=[CORS_IP])  # the IP of local front-end server
+socketio = SocketIO(app, cors_allowed_origins=[CORS_IP])
+
+
+@app.errorhandler(UserCodeException)
+def handle_error(error):
+    return jsonify(error.json)
 
 
 @app.route('/tests')
 def collect_tests():
     g.collect_only = True
     pytest.main(['--collect-only'])
+
+    if 'user_code_error' in g:
+        raise UserCodeException(g.user_code_error)
+
     return {'collectedTestsTree': g.collected_tests_tree.json}
 
 
@@ -30,6 +41,11 @@ def run_tests():
 
     if request.method == 'GET':  # call for running all tests
         pytest.main()
+
+        if 'tests_tree' not in g or 'collected_tests_tree' not in g:
+            if 'user_code_error' in g:
+                raise UserCodeException(g.user_code_error)
+
         return {'collectedTestsTree': g.collected_tests_tree.json, 'executedTestsTree': g.tests_tree.json}
     
     test_node_ids = request.json
@@ -44,6 +60,9 @@ def run_tests():
     pytest.main([node['id'] for node in test_node_ids])
 
     if 'tests_tree' not in g or 'collected_tests_tree' not in g:
+        if 'user_code_error' in g:
+            raise UserCodeException(g.user_code_error)
+
         return {'error': 'Collect tests again, tests are out of sync!'}
 
     try:

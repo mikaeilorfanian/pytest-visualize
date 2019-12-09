@@ -122,6 +122,17 @@
       >
       <pre>{{test.errorRepr}}</pre>
     </v-sheet>
+
+    <template  v-if="userCodeFailure">
+      <v-sheet :elevation=12 dark color="red">Test collection failed!</v-sheet>
+        <v-divider></v-divider>
+      <v-sheet 
+        color="black lighten-2" 
+        dark
+        >
+        <pre>{{userCodeFailure}}</pre>
+      </v-sheet>
+    </template>
   </v-container>
 
 </template>
@@ -146,6 +157,7 @@ export default {
     failedTests: [],
     testExecutionInProgress: false,
     testCollectionInProgress: false,
+    userCodeFailure: null
   }),
 
   methods: {
