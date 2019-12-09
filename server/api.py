@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask import g
 from flask import request
 from flask_cors import CORS
@@ -55,6 +55,9 @@ def run_tests():
     pytest.main([node['id'] for node in test_node_ids])
 
     if 'tests_tree' not in g or 'collected_tests_tree' not in g:
+        if 'user_code_error' in g:
+            raise UserCodeException(g.user_code_error)
+
         return {'error': 'Collect tests again, tests are out of sync!'}
 
     try:

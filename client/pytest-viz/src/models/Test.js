@@ -29,6 +29,8 @@ class Synchronizer {
     if (resp.data.error){
       vueComponent.userCodeFailure = resp.data.error.message;
       vueComponent.collectedTests = [];
+      vueComponent.executedTests = [];
+      vueComponent.failedTests = [];
     }
     else{
       vueComponent.userCodeFailure = null;
@@ -48,8 +50,16 @@ class Synchronizer {
     const resp = await ApiService.runSelectedTests(selectedTests);
     vueComponent.testExecutionInProgress = false;
     if (resp.data.error){
-      this.collectTests(vueComponent);
-      vueComponent.executedTests = [];
+        if (resp.data.error.code == 1001){
+            vueComponent.userCodeFailure = resp.data.error.message;
+            vueComponent.collectedTests = [];
+            vueComponent.executedTests = [];
+            vueComponent.failedTests = [];
+        }
+        else{
+            this.collectTests(vueComponent);
+            vueComponent.executedTests = [];
+        }
     }
     else{
       this.processTestExecutionResponse(resp, vueComponent);
