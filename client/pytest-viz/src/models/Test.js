@@ -15,7 +15,7 @@ function findFailedTests(allExecutedTests){
   }
 }
 
-function getTestCasesOnly(allSelectedTests){
+function getTestCasesOnly(allSelectedTests){  // TODO rename this function to getTestCasesFromTree
   return allSelectedTests.filter((selection) => {
       return selection.isSingleTest;
   })
@@ -40,7 +40,7 @@ class Synchronizer {
   async runAllTests(vueComponent){
     vueComponent.testExecutionInProgress = true;
     const resp = await ApiService.runTests();
-    vueComponent.testExecutionInProgress = false;
+    vueComponent.testExecutionInProgress = false; // TODO handle user code error here also
     this.processTestExecutionResponse(resp, vueComponent);
     vueComponent.collectedTests = getCollectedTestsTree(resp);
   }
