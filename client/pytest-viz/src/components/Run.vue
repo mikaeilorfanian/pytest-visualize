@@ -187,14 +187,14 @@ export default {
   },
 
   sockets: {
-        connect: function () {
-            console.log('socket connected to backend');
-            if (this.nothingSelected(this.selection)) {
-            }
-            else {
-              this.runSelectedTests();
-            }
-        },
+    connect: function () {
+        console.log('socket connected to backend');
+        if (this.nothingSelected(this.selection)) {
+        }
+        else {
+          // this.runSelectedTests();
+        }
     },
+  },
 };
 </script>
