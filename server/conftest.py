@@ -1,17 +1,11 @@
-from collections import defaultdict
-from pathlib import Path
-from pprint import pprint
-
 from flask import g
+import _pytest
 
 import tree
-from errors import UserCodeException
 
 
 TEST_EXECUTED = 'call'
 
-# def pytest_runtest_setup(item):
-#     pprint(item.name)
 
 def pytest_report_teststatus(report, config):
     """
@@ -27,8 +21,6 @@ def pytest_report_teststatus(report, config):
     except RuntimeError:  # when pytest is invoked outside flask's app context
         if report.when == TEST_EXECUTED:
             pass
-            # print(Path(report.location[0]).parts)
-            # print(type(report.location[0]))
         return
 
     if report.when == TEST_EXECUTED:
@@ -46,36 +38,12 @@ def pytest_collection_finish(session):
 
     except RuntimeError:  # when pytest is invoked outside flask's app context
         for item in session.items:
-            # print(item.nodeid, type(item.nodeid))
-            # print(item.location)
             break
-            # print(item.name, type(item.name))
         return
 
     for item in session.items:
-        # print(item.location[0])
-        # print(item.name)
-        # print(item.location[2])
-        # print(item.nodeid)
-
         tree.add_test_to_test_tree(item, g, was_executed=False)
-    # print(dir(session))
-    # print(session.items)
-    # for item in session.items:
-    #     print(item.nodeid, type(item.nodeid))
-    #     print(item.module)
-    #     print(item.name, type(item.name))
-        # print(dir(item))
 
 
-def pytest_internalerror(excrepr, excinfo):
-    with open('internal-error.txt', 'w') as f:
-        f.write(str(excrepr))
-
-
-def pytest_exception_interact(node, call, report):
+def pytest_exception_interact(node: _pytest.python.Module, call: _pytest.runner.CallInfo, report):
     g.user_code_error = node.repr_failure(call.excinfo)
-    # with open('internal-error.txt', 'w') as f:
-    #     f.write(str(node.repr_failure(call.excinfo)))
-    # print(dir(call))
-    # print(dir(node))

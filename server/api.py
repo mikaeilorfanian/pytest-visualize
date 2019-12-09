@@ -10,12 +10,12 @@ import pytest
 from errors import UserCodeException
 
 
-CORS_IP = os.environ.get('CORS_IP') or 'http://localhost:8080'
+CORS_IP = os.environ.get('CORS_IP') or 'http://localhost:8080'  # the IP of local front-end server
 
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins=[CORS_IP])  # the IP of local front-end server
+socketio = SocketIO(app, cors_allowed_origins=[CORS_IP])
 
 
 @app.errorhandler(UserCodeException)
