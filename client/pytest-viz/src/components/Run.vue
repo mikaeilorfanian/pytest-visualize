@@ -74,13 +74,15 @@
         </template>
         <template v-else>
           <v-treeview
-            open-all
             :items="executedTests"
             item-key="id"
             activatable
             :active="active"
             return-object
             @update:active="showErrorDialog"
+            :open.sync="open"
+            open-on-click
+            open-all
           >
             <template v-slot:prepend="{ item, open }">
               <v-icon v-if="item.isPackage">
@@ -157,7 +159,8 @@ export default {
     failedTests: [],
     testExecutionInProgress: false,
     testCollectionInProgress: false,
-    userCodeFailure: null
+    userCodeFailure: null,
+    open: []
   }),
 
   methods: {

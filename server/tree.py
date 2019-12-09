@@ -60,8 +60,11 @@ class TesstFunction(TesstMethod):
 @dataclass
 class TesstKlass:
     name: str
-    _id: int = field(default_factory=generate_random_id)
+    _id: str = None
     methods: List[TesstMethod] = field(default_factory=list)
+
+    def __post_init__(self):
+        self._id = self.name
 
     def add_method(self, method: TesstMethod):
         assert method.klass_name == self.name
@@ -80,8 +83,11 @@ class TesstKlass:
 @dataclass
 class TesstModule:
     name: str
-    _id: int = field(default_factory=generate_random_id)
+    _id: str = None
     children: List[Union[TesstKlass, TesstFunction]] = field(default_factory=list)
+
+    def __post_init__(self):
+        self._id = self.name
 
     def add_function(self, func: TesstFunction):
         self.children.append(func)
@@ -115,8 +121,11 @@ class TesstModule:
 @dataclass
 class TesstPackage:
     name: str
-    _id: int = field(default_factory=generate_random_id)
+    _id: str = None
     children: List[Union['TesstPackage', TesstModule]] = field(default_factory=list)
+
+    def __post_init__(self):
+        self._id = self.name
 
     def get_or_create_module(self, path_to_test_module: str) -> TesstModule:
         test_module_path = Path(path_to_test_module)
