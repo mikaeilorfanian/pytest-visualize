@@ -162,6 +162,7 @@
 <script>
 import ApiService from "@/services/ApiService";
 import Test from "@/models/Test";
+import Config from "@/models/Config";
 
 let syncer = new Test.Synchronizer();
 
@@ -182,7 +183,7 @@ export default {
     userCodeFailure: null,
     open: [],
     drawer: null,
-    auto: false
+    auto: Config.getAuto()
   }),
   methods: {
     async collectTests () {
