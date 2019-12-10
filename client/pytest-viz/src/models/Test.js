@@ -8,12 +8,12 @@ function getExecutedTestsTree(response) {
   return response.data.executedTestsTree;
 }
 
-function findFailedTests(allExecutedTests){
-  const firstTest = allExecutedTests[0].children[0];
-  if (!firstTest.passed){  // TODO: finds only 1
-    return [firstTest] ;
-  }
-}
+// function findFailedTests(allExecutedTests){
+//   const firstTest = allExecutedTests[0].children[0];
+//   if (!firstTest.passed){  // TODO: finds only 1
+//     return [firstTest] ;
+//   }
+// }
 
 function getTestCasesOnly(allSelectedTests){  // TODO rename this function to getSelectedTestsFromTree
   return allSelectedTests.filter((selection) => {
@@ -26,7 +26,7 @@ class Synchronizer {
     vueComponent.userCodeFailure = response.data.error.message;
     vueComponent.collectedTests = [];
     vueComponent.executedTests = [];
-    vueComponent.failedTests = [];
+    // vueComponent.failedTests = [];
   }
   userCodeUpdated(vueComponent){
     this.collectTests(vueComponent);
@@ -79,7 +79,7 @@ class Synchronizer {
   processTestExecutionResponse (resp, vueComponent) {
     let executedTests = getExecutedTestsTree(resp);
     vueComponent.executedTests = executedTests;
-    vueComponent.failedTests = findFailedTests(executedTests);
+    // vueComponent.failedTests = findFailedTests(executedTests);
     vueComponent.userCodeFailure = null;
   }
 }
