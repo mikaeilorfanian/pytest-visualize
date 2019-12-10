@@ -2,6 +2,7 @@
 
   <v-container>
       <v-app-bar dark fixed dense>
+        <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
         <v-toolbar-title>Available Tests</v-toolbar-title>
         <div class="text-center">
           <v-btn class="ma-2" tile color="orange" light @click="collectTests()">Collect</v-btn>
@@ -13,6 +14,30 @@
           </template>
         </div>
       </v-app-bar>
+
+    <v-navigation-drawer
+      v-model="drawer"
+      absolute
+      temporary
+    >
+      <v-subheader>Config</v-subheader>
+      <v-list-item nav>
+        <!-- <v-list-item-avatar>
+          <v-img src="https://randomuser.me/api/portraits/men/78.jpg"></v-img>
+        </v-list-item-avatar>
+
+        <v-list-item-content>
+          
+          <v-list-item-title>John Leider</v-list-item-title>
+        </v-list-item-content> -->
+        <v-switch
+          v-model="auto"
+          class="ma-2"
+          label="Auto"
+          @change="saveConfig()"
+        ></v-switch>
+      </v-list-item>
+    </v-navigation-drawer>
 
     <v-row>
       <v-col class="pa-6">
@@ -163,14 +188,10 @@ export default {
     testExecutionInProgress: false,
     testCollectionInProgress: false,
     userCodeFailure: null,
-    open: []
+    open: [],
+    drawer: null,
+    auto: false
   }),
-  // computed: {
-  //   toOpen(){
-  //     console.log(this.executedTests[0]['id']);
-  //     return [this.executedTests[0]['id']]
-  //   }
-  // },
   methods: {
     async collectTests () {
       syncer.collectTests(this);
@@ -191,6 +212,11 @@ export default {
         this.dialog = true;
       }
       
+    },
+    saveConfig (){
+      console.log(this.auto);
+      localStorage.setItem('auto', this.auto);
+      
     }
   },
 
@@ -200,7 +226,10 @@ export default {
         if (this.nothingSelected(this.selection)) {
         }
         else {
-          // this.runSelectedTests();
+          if (localStorage.getItem('auto') === 'true'){
+            console.log('yes');
+            //this.runSelectedTests();
+      }
         }
     },
   },
