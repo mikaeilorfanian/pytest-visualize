@@ -85,6 +85,9 @@
             open-all
           >
             <template v-slot:prepend="{ item, open }">
+              <v-icon v-if="!item.isSingleTest && item.containsFailedTests" color="red">
+                {{ 'mdi-exclamation-thick' }}
+              </v-icon>
               <v-icon v-if="item.isPackage">
                 {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
               </v-icon>

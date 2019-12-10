@@ -1,7 +1,18 @@
 import pytest
 from pytest import fixture
 
-from tree import TesstKlass, TesstFunction, TesstModule, TesstPackage, TreeRoot
+from tree import TesstKlass, TesstFunction, TesstMethod, TesstModule, TesstPackage, TreeRoot
+
+
+@fixture
+def failed_test_method():
+    return TesstMethod(
+        name='test_two',
+        passed=False,
+        node_id='test_sth.py::TestKlass::test_two',
+        error='',
+        executed=True,
+    )
 
 
 class TestSamePackage:
@@ -14,6 +25,15 @@ class TestSamePackage:
         assert test_package.json['isPackage'] is True
         assert test_package.json['name'] == 'tests'
         assert 'id' in test_package.json
+        assert test_package.json['containsFailedTests'] is False
+
+    def test_failing_module_to_package(self, failed_test_method):
+        test_package = TesstPackage('tests')
+        test_module = test_package.get_or_create_module('tests/test_tesst_module.py')
+        klass = test_module.get_or_add_klass('TestKlass')
+        klass.add_method(failed_test_method)
+
+        assert test_package.json['containsFailedTests'] is True
 
     def test_add_same_module_twice(self):
         test_package = TesstPackage('tests')
@@ -26,6 +46,8 @@ class TestSamePackage:
         assert len(test_package.json['children']) == 1
         assert test_package.json['name'] == 'tests'
 
+        assert test_package.json['containsFailedTests'] is False
+
     def test_add_two_different_modules(self):
         test_package = TesstPackage('tests')
         first_module = test_package.get_or_create_module('tests/test_tesst_module.py')
@@ -36,6 +58,18 @@ class TestSamePackage:
 
         assert len(test_package.json['children']) == 2
         assert test_package.json['name'] == 'tests'
+
+    def test_add_failing_and_passing_modules(self, failed_test_method):
+        test_package = TesstPackage('tests')
+        test_package.get_or_create_module('tests/test_tesst_module.py')
+
+        assert test_package.json['containsFailedTests'] is False
+
+        test_module = test_package.get_or_create_module('tests/test_tesst_module.py')
+        klass = test_module.get_or_add_klass('TestKlass')
+        klass.add_method(failed_test_method)
+
+        assert test_package.json['containsFailedTests'] is True
 
     def test_add_module_to_wrong_package(self):
         test_package = TesstPackage('tests')
@@ -50,12 +84,14 @@ class TestTwoPackagesNested:
 
         assert isinstance(test_module, TesstModule)
         assert len(test_package.json['children']) == 1
+        assert test_package.json['containsFailedTests'] is False
 
         sub_package = test_package.json['children'][0]
         assert len(sub_package['children']) == 1
         assert sub_package['isPackage'] is True
         assert sub_package['name'] == 'tests1'
         assert 'id' in sub_package
+        assert sub_package['containsFailedTests'] is False
 
         test_module = sub_package['children'][0]
         assert test_module['name'] == 'test_tesst_module.py'
@@ -65,7 +101,7 @@ class TestTwoPackagesNested:
         test_package = TesstPackage('tests')
         test_module = test_package.get_or_create_module('tests/tests1/test_tesst_module.py')
         assert isinstance(test_module, TesstModule)
-        assert test_package['name'] == 'test_tesst_module.py'
+        assert test_module.json['name'] == 'test_tesst_module.py'
         assert len(test_package.json['children']) == 1
 
         sub_package = test_package.json['children'][0]
@@ -75,7 +111,7 @@ class TestTwoPackagesNested:
 
         test_module = test_package.get_or_create_module('tests/tests1/test_tesst_module.py')
         assert isinstance(test_module, TesstModule)
-        assert test_package['name'] == 'test_tesst_module.py'
+        assert test_module.json['name'] == 'test_tesst_module.py'
 
         # make sure no more packages or sub-packages were added
         assert len(test_package.json['children']) == 1
@@ -152,10 +188,12 @@ class TestTwoPackagesNested:
 
 
 class TestMultipleLevelsOfNesting:
-    def test_add_multiple_modules_at_different_levels_of_nesting(self):
+    def test_add_multiple_modules_at_different_levels_of_nesting(self, failed_test_method):
         test_package = TesstPackage('tests')
         test_package.get_or_create_module('tests/tests1/test_tesst_module.py')
         test_module = test_package.get_or_create_module('tests/tests1/test_tesst_module.py')
+        klass = test_module.get_or_add_klass('TestKlass')
+        klass.add_method(failed_test_method)
 
         assert isinstance(test_module, TesstModule)
         assert len(test_package.json['children']) == 1
@@ -169,3 +207,5 @@ class TestMultipleLevelsOfNesting:
         test_module = sub_package['children'][0]
         assert test_module['name'] == 'test_tesst_module.py'
         assert test_module['isModule'] is True
+
+        assert test_package.json['containsFailedTests'] is True

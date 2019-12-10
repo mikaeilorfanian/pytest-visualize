@@ -10,6 +10,15 @@ def generate_random_id():
     return randint(1, 1_000_000)  # TODO: UUID would be a proper solution here
 
 
+def contains_failed_tests(children):
+    if len(children) == 0:
+        return False
+
+    for child in children:
+        if not child.passed:
+            return True
+
+
 @dataclass
 class TesstMethod:
     name: str
@@ -71,12 +80,20 @@ class TesstKlass:
         self.methods.append(method)
 
     @property
+    def passed(self):
+        if contains_failed_tests(self.methods):
+            return False
+
+        return True
+
+    @property
     def json(self):
         return {
             'name': self.name,
             'id': self._id,
             'isKlass': True,
-            'children': [method.json for method in self.methods]
+            'children': [method.json for method in self.methods],
+            'containsFailedTests': not self.passed,
         }
 
 
@@ -109,12 +126,20 @@ class TesstModule:
                     return child
 
     @property
+    def passed(self):
+        if contains_failed_tests(self.children):
+            return False
+
+        return True
+
+    @property
     def json(self):
         return {
             'name': self.name,
             'id': self._id,
             'isModule': True,
-            'children': [child.json for child in self.children]
+            'children': [child.json for child in self.children],
+            'containsFailedTests': not self.passed,
         }
 
 
@@ -159,12 +184,20 @@ class TesstPackage:
         return test_module
 
     @property
+    def passed(self):
+        if contains_failed_tests(self.children):
+            return False
+
+        return True
+
+    @property
     def json(self):
         return {
             'name': self.name,
             'id': self._id,
             'isPackage': True,
-            'children': [child.json for child in self.children]
+            'children': [child.json for child in self.children],
+            'containsFailedTests': not self.passed,
         }
 
 
