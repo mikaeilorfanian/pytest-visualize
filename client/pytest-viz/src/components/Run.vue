@@ -1,18 +1,18 @@
 <template>
 
   <v-container>
-    <v-toolbar color="teal" dark>
-      <v-toolbar-title>Available Tests</v-toolbar-title>
-      <div class="text-center">
-        <v-btn class="ma-2" tile color="orange" light @click="collectTests()">Collect</v-btn>
-        <template v-if="nothingSelected(selection)">
-            <v-btn class="ma-2" tile color="green" @click="runAllTests()">Run All</v-btn>
-        </template>
-        <template v-else>
-            <v-btn class="ma-2" tile color="green" @click="runSelectedTests()">Run Selected</v-btn>
-        </template>
-      </div>
-    </v-toolbar>
+      <v-app-bar dark fixed dense>
+        <v-toolbar-title>Available Tests</v-toolbar-title>
+        <div class="text-center">
+          <v-btn class="ma-2" tile color="orange" light @click="collectTests()">Collect</v-btn>
+          <template v-if="nothingSelected(selection)">
+              <v-btn class="ma-2" tile color="green" @click="runAllTests()">Run All</v-btn>
+          </template>
+          <template v-else>
+              <v-btn class="ma-2" tile color="green" @click="runSelectedTests()">Run Selected</v-btn>
+          </template>
+        </div>
+      </v-app-bar>
 
     <v-row>
       <v-col class="pa-6">
@@ -98,10 +98,10 @@
                 {{ 'mdi-file-table-box-multiple-outline' }}
               </v-icon>
               <v-icon color="green" v-else-if="item.wasExecuted && item.passed">
-                {{ 'mdi-flash' }}
+                {{ 'mdi-check-bold' }}
               </v-icon>
               <v-icon color="red" v-else>
-                {{ 'mdi-flash' }}
+                {{ 'mdi-exclamation-thick' }}
               </v-icon>
             </template>
           </v-treeview>
@@ -129,7 +129,7 @@
     </v-sheet>
 
     <template  v-if="userCodeFailure">
-      <v-sheet :elevation=12 dark color="red">Test collection failed!</v-sheet>
+      <v-sheet :elevation=12 dark color="red">Test collection failed!</v-sheet> // use Alerts here
         <v-divider></v-divider>
       <v-sheet 
         color="black lighten-2" 
@@ -165,7 +165,12 @@ export default {
     userCodeFailure: null,
     open: []
   }),
-
+  // computed: {
+  //   toOpen(){
+  //     console.log(this.executedTests[0]['id']);
+  //     return [this.executedTests[0]['id']]
+  //   }
+  // },
   methods: {
     async collectTests () {
       syncer.collectTests(this);
