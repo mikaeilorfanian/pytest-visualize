@@ -46,4 +46,7 @@ def pytest_collection_finish(session):
 
 
 def pytest_exception_interact(node: _pytest.python.Module, call: _pytest.runner.CallInfo, report):
-    g.user_code_error = node.repr_failure(call.excinfo)
+    try:
+        g.user_code_error = node.repr_failure(call.excinfo)
+    except RuntimeError:
+        pass
