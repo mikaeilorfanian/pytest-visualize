@@ -6,8 +6,13 @@ from typing import List, Optional, Union
 import _pytest
 
 
-def generate_random_id():
-    return randint(1, 1_000_000)  # TODO: UUID would be a proper solution here
+def contains_failed_tests(children):
+    if len(children) == 0:
+        return False
+
+    for child in children:
+        if not child.passed:
+            return True
 
 
 @dataclass
@@ -60,12 +65,22 @@ class TesstFunction(TesstMethod):
 @dataclass
 class TesstKlass:
     name: str
-    _id: int = field(default_factory=generate_random_id)
+    _id: str = None
     methods: List[TesstMethod] = field(default_factory=list)
+
+    def __post_init__(self):
+        self._id = self.name
 
     def add_method(self, method: TesstMethod):
         assert method.klass_name == self.name
         self.methods.append(method)
+
+    @property
+    def passed(self):
+        if contains_failed_tests(self.methods):
+            return False
+
+        return True
 
     @property
     def json(self):
@@ -73,15 +88,19 @@ class TesstKlass:
             'name': self.name,
             'id': self._id,
             'isKlass': True,
-            'children': [method.json for method in self.methods]
+            'children': [method.json for method in self.methods],
+            'containsFailedTests': not self.passed,
         }
 
 
 @dataclass
 class TesstModule:
     name: str
-    _id: int = field(default_factory=generate_random_id)
+    _id: str = None
     children: List[Union[TesstKlass, TesstFunction]] = field(default_factory=list)
+
+    def __post_init__(self):
+        self._id = self.name
 
     def add_function(self, func: TesstFunction):
         self.children.append(func)
@@ -103,20 +122,31 @@ class TesstModule:
                     return child
 
     @property
+    def passed(self):
+        if contains_failed_tests(self.children):
+            return False
+
+        return True
+
+    @property
     def json(self):
         return {
             'name': self.name,
             'id': self._id,
             'isModule': True,
-            'children': [child.json for child in self.children]
+            'children': [child.json for child in self.children],
+            'containsFailedTests': not self.passed,
         }
 
 
 @dataclass
 class TesstPackage:
     name: str
-    _id: int = field(default_factory=generate_random_id)
+    _id: str = None
     children: List[Union['TesstPackage', TesstModule]] = field(default_factory=list)
+
+    def __post_init__(self):
+        self._id = self.name
 
     def get_or_create_module(self, path_to_test_module: str) -> TesstModule:
         test_module_path = Path(path_to_test_module)
@@ -150,12 +180,20 @@ class TesstPackage:
         return test_module
 
     @property
+    def passed(self):
+        if contains_failed_tests(self.children):
+            return False
+
+        return True
+
+    @property
     def json(self):
         return {
             'name': self.name,
             'id': self._id,
             'isPackage': True,
-            'children': [child.json for child in self.children]
+            'children': [child.json for child in self.children],
+            'containsFailedTests': not self.passed,
         }
 
 
