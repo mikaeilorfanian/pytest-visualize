@@ -6,10 +6,6 @@ from typing import List, Optional, Union
 import _pytest
 
 
-def generate_random_id():
-    return randint(1, 1_000_000)  # TODO: UUID would be a proper solution here
-
-
 def contains_failed_tests(children):
     if len(children) == 0:
         return False
