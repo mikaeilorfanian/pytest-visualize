@@ -104,7 +104,7 @@
           >
             <template v-slot:append="{item}">
               <!-- <v-btn v-if="!item.passed && item.wasExecuted">Show Error</v-btn> -->
-              <v-alert text dense outlined elevation="2" v-if="!item.passed && item.wasExecuted" type="error">
+              <v-alert text dense outlined v-if="!item.passed && item.wasExecuted" type="error">
                 
                 <pre>{{item.errorRepr}}</pre>
               </v-alert>
