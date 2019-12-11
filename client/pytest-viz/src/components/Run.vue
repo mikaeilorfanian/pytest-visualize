@@ -116,22 +116,31 @@
               </v-alert>
             </template>
             <template v-slot:prepend="{ item, open }">
-              <v-icon v-if="!item.isSingleTest && item.containsFailedTests" color="red">
+              <!-- <v-icon v-if="!item.isSingleTest && item.containsFailedTests" color="red">
                 {{ 'mdi-exclamation-thick' }}
-              </v-icon>
-              <v-icon v-if="item.isPackage">
+              </v-icon> -->
+              <v-icon color="red" v-if="item.isPackage && item.containsFailedTests">
                 {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
               </v-icon>
-              <v-icon v-else-if="item.isModule">
+              <v-icon color="green" v-if="item.isPackage && !item.containsFailedTests">
+                {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
+              </v-icon>
+              <v-icon color="red" v-else-if="item.isModule && item.containsFailedTests">
                 {{ 'mdi-language-python' }}
               </v-icon>
-              <v-icon v-else-if="item.isKlass">
+              <v-icon color="green" v-else-if="item.isModule && !item.containsFailedTests">
+                {{ 'mdi-language-python' }}
+              </v-icon>
+              <v-icon color="red" v-else-if="item.isKlass && item.containsFailedTests">
+                {{ 'mdi-file-table-box-multiple-outline' }}
+              </v-icon>
+              <v-icon color="green" v-else-if="item.isKlass && !item.containsFailedTests">
                 {{ 'mdi-file-table-box-multiple-outline' }}
               </v-icon>
               <v-icon color="green" v-else-if="item.wasExecuted && item.passed">
                 {{ 'mdi-check-bold' }}
               </v-icon>
-              <v-icon color="red" v-else>
+              <v-icon color="red" v-else-if="item.wasExecuted && !item.passed">
                 {{ 'mdi-exclamation-thick' }}
               </v-icon>
             </template>
