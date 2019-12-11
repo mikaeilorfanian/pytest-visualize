@@ -215,9 +215,7 @@ export default {
       
     },
     saveConfig (){
-      console.log(this.auto);
-      localStorage.setItem('auto', this.auto);
-      
+      Config.saveConfig(this);
     }
   },
 

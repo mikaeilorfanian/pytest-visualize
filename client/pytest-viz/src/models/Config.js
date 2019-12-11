@@ -13,4 +13,7 @@ export default {
       return null;
     }
   },
+  saveConfig(vueComponent){
+    localStorage.setItem('auto', vueComponent.auto);
+  }
 }
