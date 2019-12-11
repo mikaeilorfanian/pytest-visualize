@@ -190,7 +190,7 @@ export default {
     dialog: false,
     error: null,
     panel: 0,  // always open the first panel only
-    // failedTests: [],
+    failedTests: [],
     testExecutionInProgress: false,
     testCollectionInProgress: false,
     userCodeFailure: null,
@@ -208,6 +208,9 @@ export default {
     },
     async runSelectedTests () {
       syncer.runSelectedTests(this);
+    },
+    async runFailedTests(){
+      syncer.runFailedTests(this);
     },
     nothingSelected (selection) {
         const selectedTests = Test.getTestCasesOnly(selection);
@@ -236,7 +239,7 @@ export default {
         else {
           if (localStorage.getItem('auto') === 'true'){
             if (localStorage.getItem('autoTests') === 'failed'){
-              this.runSelectedTests();
+              this.runFailedTests();
             }
             console.log('yes');
             //this.runSelectedTests();

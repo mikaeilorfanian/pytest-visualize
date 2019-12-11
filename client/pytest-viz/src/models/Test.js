@@ -76,10 +76,14 @@ class Synchronizer {
       this.processTestExecutionResponse(resp, vueComponent);
     }
   }
+  async runFailedTests(vueComponent){
+    vueComponent.selection = vueComponent.failedTests;
+    await this.runSelectedTests(vueComponent);
+  }
   processTestExecutionResponse (resp, vueComponent) {
     let executedTests = getExecutedTestsTree(resp);
     vueComponent.executedTests = executedTests;
-    // vueComponent.failedTests = findFailedTests(executedTests);
+    vueComponent.failedTests = resp.data.failedTests;
     vueComponent.userCodeFailure = null;
   }
 }
