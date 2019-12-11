@@ -100,7 +100,15 @@
             :open.sync="open"
             open-on-click
             open-all
+            dense
           >
+            <template v-slot:append="{item}">
+              <!-- <v-btn v-if="!item.passed && item.wasExecuted">Show Error</v-btn> -->
+              <v-alert text dense outlined v-if="!item.passed && item.wasExecuted" type="error">
+                
+                <pre>{{item.errorRepr}}</pre>
+              </v-alert>
+            </template>
             <template v-slot:prepend="{ item, open }">
               <v-icon v-if="!item.isSingleTest && item.containsFailedTests" color="red">
                 {{ 'mdi-exclamation-thick' }}
@@ -135,7 +143,7 @@
       </v-card>
     </v-dialog>
 
-    <v-sheet 
+    <!-- <v-sheet 
       color="black lighten-2" 
       v-model="panel"
       v-for="(test) in failedTests"
@@ -143,7 +151,7 @@
       dark
       >
       <pre>{{test.errorRepr}}</pre>
-    </v-sheet>
+    </v-sheet> -->
 
     <template  v-if="userCodeFailure">
       <v-sheet :elevation=12 dark color="red">Test collection failed!</v-sheet> // use Alerts here
@@ -177,7 +185,7 @@ export default {
     dialog: false,
     error: null,
     panel: 0,  // always open the first panel only
-    failedTests: [],
+    // failedTests: [],
     testExecutionInProgress: false,
     testCollectionInProgress: false,
     userCodeFailure: null,
