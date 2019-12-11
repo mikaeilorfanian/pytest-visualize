@@ -33,6 +33,7 @@
         <v-radio-group v-model="autoTests" @change="saveAutoTestsConfig()">
           <v-radio v-if="auto" value="failed" label="Failed Tests"></v-radio>
           <v-radio v-if="auto" value="all" label="All Tests"></v-radio>
+          <v-radio v-if="auto" value="selected" label="Only Selected Ones"></v-radio>
         </v-radio-group>
       </v-list-item>
     </v-navigation-drawer>
@@ -240,6 +241,12 @@ export default {
           if (localStorage.getItem('auto') === 'true'){
             if (localStorage.getItem('autoTests') === 'failed'){
               this.runFailedTests();
+            }
+            else if (localStorage.getItem('autoTests') === 'all'){
+              this.runAllTests();
+            }
+            else if (localStorage.getItem('autoTests') === 'selected'){
+              this.runSelectedTests();
             }
             console.log('yes');
             //this.runSelectedTests();
