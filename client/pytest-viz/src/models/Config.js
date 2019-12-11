@@ -13,7 +13,19 @@ export default {
       return null;
     }
   },
+  getAutoTests(){
+    const autoTests = localStorage.getItem('autoTests');
+    if (autoTests){
+      return autoTests;
+    }
+    else{
+      return null;
+    }
+  },
   saveConfig(vueComponent){
     localStorage.setItem('auto', vueComponent.auto);
+  },
+  saveAutoTestsConfig(vueComponent){
+    localStorage.setItem('autoTests', vueComponent.autoTests);
   }
 }

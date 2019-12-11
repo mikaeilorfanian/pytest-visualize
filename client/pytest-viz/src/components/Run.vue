@@ -29,6 +29,12 @@
           @change="saveConfig()"
         ></v-switch>
       </v-list-item>
+      <v-list-item nav>
+        <v-radio-group v-model="autoTests" @change="saveAutoTestsConfig()">
+          <v-radio v-if="auto" value="failed" label="Failed Tests"></v-radio>
+          <v-radio v-if="auto" value="all" label="All Tests"></v-radio>
+        </v-radio-group>
+      </v-list-item>
     </v-navigation-drawer>
 
     <v-row>
@@ -105,7 +111,6 @@
             <template v-slot:append="{item}">
               <!-- <v-btn v-if="!item.passed && item.wasExecuted">Show Error</v-btn> -->
               <v-alert text dense outlined v-if="!item.passed && item.wasExecuted" type="error">
-                
                 <pre>{{item.errorRepr}}</pre>
               </v-alert>
             </template>
@@ -191,7 +196,8 @@ export default {
     userCodeFailure: null,
     open: [],
     drawer: null,
-    auto: Config.getAuto()
+    auto: Config.getAuto(),
+    autoTests: Config.getAutoTests(),
   }),
   methods: {
     async collectTests () {
@@ -216,6 +222,9 @@ export default {
     },
     saveConfig (){
       Config.saveConfig(this);
+    },
+    saveAutoTestsConfig(){
+      Config.saveAutoTestsConfig(this);
     }
   },
 
@@ -226,6 +235,9 @@ export default {
         }
         else {
           if (localStorage.getItem('auto') === 'true'){
+            if (localStorage.getItem('autoTests') === 'failed'){
+              this.runSelectedTests();
+            }
             console.log('yes');
             //this.runSelectedTests();
           }
