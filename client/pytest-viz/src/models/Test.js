@@ -46,10 +46,12 @@ class Synchronizer {
     vueComponent.testCollectionInProgress = false;
     if (resp.data.error){
       this.handleError(resp, vueComponent);
+      vueComponent.collectedTestsCount = null;
     }
     else{
       vueComponent.userCodeFailure = null;
       vueComponent.collectedTests = getCollectedTestsTree(resp);
+      vueComponent.collectedTestsCount = resp.data.collectedTestsCount;
     }
   }
   async runAllTests(vueComponent){
@@ -58,6 +60,7 @@ class Synchronizer {
     vueComponent.testExecutionInProgress = false;
     if (resp.data.error){
       this.handleError(resp, vueComponent);
+      vueComponent.executedTestsCount = null;
     }
     else{
       this.processTestExecutionResponse(resp, vueComponent);
@@ -71,6 +74,7 @@ class Synchronizer {
     vueComponent.testExecutionInProgress = false;
     if (resp.data.error){
       this.handleError(resp, vueComponent);
+      vueComponent.executedTestsCount = null;
     }
     else{
       this.processTestExecutionResponse(resp, vueComponent);
@@ -85,6 +89,7 @@ class Synchronizer {
     vueComponent.executedTests = executedTests;
     vueComponent.failedTests = resp.data.failedTests;
     vueComponent.userCodeFailure = null;
+    vueComponent.executedTestsCount = resp.data.executedTestsCount;
   }
 }
 
