@@ -26,7 +26,7 @@
           v-model="auto"
           class="ma-2"
           label="Auto"
-          @change="saveConfig()"
+          @change="saveAutoConfig()"
         ></v-switch>
       </v-list-item>
       <v-list-item nav>
@@ -223,8 +223,8 @@ export default {
       }
       
     },
-    saveConfig (){
-      Config.saveConfig(this);
+    saveAutoConfig (){
+      Config.saveAutoConfig(this);
     },
     saveAutoTestsConfig(){
       Config.saveAutoTestsConfig(this);

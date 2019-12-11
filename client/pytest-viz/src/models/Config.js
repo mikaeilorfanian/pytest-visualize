@@ -22,7 +22,7 @@ export default {
       return null;
     }
   },
-  saveConfig(vueComponent){
+  saveAutoConfig(vueComponent){
     localStorage.setItem('auto', vueComponent.auto);
   },
   saveAutoTestsConfig(vueComponent){
