@@ -26,8 +26,15 @@
           v-model="auto"
           class="ma-2"
           label="Auto"
-          @change="saveConfig()"
+          @change="saveAutoConfig()"
         ></v-switch>
+      </v-list-item>
+      <v-list-item nav>
+        <v-radio-group v-model="autoTests" @change="saveAutoTestsConfig()">
+          <v-radio v-if="auto" value="failed" label="Failed Tests"></v-radio>
+          <v-radio v-if="auto" value="all" label="All Tests"></v-radio>
+          <v-radio v-if="auto" value="selected" label="Only Selected Ones"></v-radio>
+        </v-radio-group>
       </v-list-item>
     </v-navigation-drawer>
 
@@ -105,27 +112,32 @@
             <template v-slot:append="{item}">
               <!-- <v-btn v-if="!item.passed && item.wasExecuted">Show Error</v-btn> -->
               <v-alert text dense outlined v-if="!item.passed && item.wasExecuted" type="error">
-                
                 <pre>{{item.errorRepr}}</pre>
               </v-alert>
             </template>
             <template v-slot:prepend="{ item, open }">
-              <v-icon v-if="!item.isSingleTest && item.containsFailedTests" color="red">
-                {{ 'mdi-exclamation-thick' }}
-              </v-icon>
-              <v-icon v-if="item.isPackage">
+              <v-icon color="red" v-if="item.isPackage && item.containsFailedTests">
                 {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
               </v-icon>
-              <v-icon v-else-if="item.isModule">
+              <v-icon color="green" v-if="item.isPackage && !item.containsFailedTests">
+                {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
+              </v-icon>
+              <v-icon color="red" v-else-if="item.isModule && item.containsFailedTests">
                 {{ 'mdi-language-python' }}
               </v-icon>
-              <v-icon v-else-if="item.isKlass">
+              <v-icon color="green" v-else-if="item.isModule && !item.containsFailedTests">
+                {{ 'mdi-language-python' }}
+              </v-icon>
+              <v-icon color="red" v-else-if="item.isKlass && item.containsFailedTests">
+                {{ 'mdi-file-table-box-multiple-outline' }}
+              </v-icon>
+              <v-icon color="green" v-else-if="item.isKlass && !item.containsFailedTests">
                 {{ 'mdi-file-table-box-multiple-outline' }}
               </v-icon>
               <v-icon color="green" v-else-if="item.wasExecuted && item.passed">
                 {{ 'mdi-check-bold' }}
               </v-icon>
-              <v-icon color="red" v-else>
+              <v-icon color="red" v-else-if="item.wasExecuted && !item.passed">
                 {{ 'mdi-exclamation-thick' }}
               </v-icon>
             </template>
@@ -185,13 +197,14 @@ export default {
     dialog: false,
     error: null,
     panel: 0,  // always open the first panel only
-    // failedTests: [],
+    failedTests: [],
     testExecutionInProgress: false,
     testCollectionInProgress: false,
     userCodeFailure: null,
     open: [],
     drawer: null,
-    auto: Config.getAuto()
+    auto: Config.getAuto(),
+    autoTests: Config.getAutoTests(),
   }),
   methods: {
     async collectTests () {
@@ -202,6 +215,9 @@ export default {
     },
     async runSelectedTests () {
       syncer.runSelectedTests(this);
+    },
+    async runFailedTests(){
+      syncer.runFailedTests(this);
     },
     nothingSelected (selection) {
         const selectedTests = Test.getTestCasesOnly(selection);
@@ -214,24 +230,28 @@ export default {
       }
       
     },
-    saveConfig (){
-      console.log(this.auto);
-      localStorage.setItem('auto', this.auto);
-      
+    saveAutoConfig (){
+      Config.saveAutoConfig(this);
+    },
+    saveAutoTestsConfig(){
+      Config.saveAutoTestsConfig(this);
     }
   },
 
   sockets: {
     connect: function () {
-        console.log('socket connected to backend');
-        if (this.nothingSelected(this.selection)) {
+      console.log('socket connected to backend');
+      if (localStorage.getItem('auto') === 'true'){
+        if (localStorage.getItem('autoTests') === 'failed'){
+          this.runFailedTests();
         }
-        else {
-          if (localStorage.getItem('auto') === 'true'){
-            console.log('yes');
-            //this.runSelectedTests();
+        else if (localStorage.getItem('autoTests') === 'all'){
+          this.runAllTests();
+        }
+        else if (localStorage.getItem('autoTests') === 'selected'){
+          this.runSelectedTests();
+        }
       }
-        }
     },
   },
 };

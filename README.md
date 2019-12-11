@@ -13,7 +13,7 @@ To distinguish the source of changes in the pull request, each commit has the fo
 *refactor*, same as bug fixes but for code improvements. Refactors DON'T change functionality.   
 *cleanup* is usually for removing outdated never used code, formatting (e.g. fixing flake8 warnings), etc. Again, these don't change any functionality.   
 *chores* are like clean ups which don't involve code or features. For example, updating the `README`s or `.gitignore`.   
-*PRR* is a change related to a pull request review. It's basically a refactor or clean up requested by a reviewer.   
+*PRR* is a change related to a pull request review. It's basically a change requested or suggested by a reviewer.   
 ## Project https://github.com/mikaeilorfanian/pytest-visualize/projects/1
 Using the link above, you can track progress on
 - issues picked for implementation (To-do column)
