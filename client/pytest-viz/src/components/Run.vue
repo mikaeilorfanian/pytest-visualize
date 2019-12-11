@@ -235,22 +235,18 @@ export default {
   sockets: {
     connect: function () {
       console.log('socket connected to backend');
-      if (this.nothingSelected(this.selection)) {
-      }
-      else {
-        if (localStorage.getItem('auto') === 'true'){
-          if (localStorage.getItem('autoTests') === 'failed'){
-            this.runFailedTests();
-          }
-          else if (localStorage.getItem('autoTests') === 'all'){
-            this.runAllTests();
-          }
-          else if (localStorage.getItem('autoTests') === 'selected'){
-            this.runSelectedTests();
-          }
-          console.log('yes');
-          //this.runSelectedTests();
+      if (localStorage.getItem('auto') === 'true'){
+        if (localStorage.getItem('autoTests') === 'failed'){
+          this.runFailedTests();
         }
+        else if (localStorage.getItem('autoTests') === 'all'){
+          this.runAllTests();
+        }
+        else if (localStorage.getItem('autoTests') === 'selected'){
+          this.runSelectedTests();
+        }
+        console.log('yes');
+        //this.runSelectedTests();
       }
     },
   },
