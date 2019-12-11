@@ -46,7 +46,11 @@ def run_tests():
             if 'user_code_error' in g:
                 raise UserCodeException(g.user_code_error)
 
-        return {'collectedTestsTree': g.collected_tests_tree.json, 'executedTestsTree': g.tests_tree.json}
+        return {
+            'collectedTestsTree': g.collected_tests_tree.json,
+            'executedTestsTree': g.tests_tree.json,
+            'failedTests': g.failed_tests,
+        }
     
     test_node_ids = request.json
 
@@ -74,7 +78,11 @@ def run_tests():
     except AttributeError:
         return {'error': 'Collect tests again! They are out of sync, one or more not found!'}
 
-    return {'collectedTestsTree': g.collected_tests_tree.json, 'executedTestsTree': g.tests_tree.json}
+    return {
+        'collectedTestsTree': g.collected_tests_tree.json,
+        'executedTestsTree': g.tests_tree.json,
+        'failedTests': g.failed_tests,
+    }
 
 
 # @app.route('/tests/run/<node_id>')

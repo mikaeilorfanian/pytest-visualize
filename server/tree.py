@@ -250,11 +250,17 @@ def add_test_to_test_tree(test_item: Union[_pytest.python.Function, _pytest.repo
 
         if 'executed_tests_counter' not in flask_g:
             flask_g.executed_tests_counter = 0
+
+        if 'failed_tests' not in flask_g:
+            flask_g.failed_tests = []
     else:
         if 'collected_tests_tree' not in flask_g:
             flask_g.collected_tests_tree = tree = TreeRoot()
         else:
             tree = flask_g.collected_tests_tree
+
+        if 'failed_tests' not in flask_g:
+            flask_g.failed_tests = []
 
     test_module_path = test_item.location[0]
     module = tree.get_or_create_module(test_module_path)
@@ -263,9 +269,16 @@ def add_test_to_test_tree(test_item: Union[_pytest.python.Function, _pytest.repo
         test_method = TesstMethod.from_report(test_item, was_executed)
         test_class = module.get_or_add_klass(test_method.klass_name)
         test_class.add_method(test_method)
+
+        if was_executed and not test_method.passed:
+            flask_g.failed_tests.append(test_method.json)
+
     else:  # this is a test function
         test_function = TesstFunction.from_report(test_item, was_executed)
         module.add_function(test_function)
+
+        if was_executed and not test_function.passed:
+            flask_g.failed_tests.append(test_function.json)
 
     if was_executed:
         flask_g.executed_tests_counter += 1
