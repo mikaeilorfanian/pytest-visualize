@@ -166,8 +166,10 @@
     </v-sheet> -->
 
     <template  v-if="userCodeFailure">
-      <v-sheet :elevation=12 dark color="red">Test collection failed!</v-sheet> // use Alerts here
-        <v-divider></v-divider>
+      <v-alert dense prominent type="error">
+        Cannot collect or run tests! See below.
+      </v-alert>
+      <v-divider></v-divider>
       <v-sheet 
         color="black lighten-2" 
         dark
