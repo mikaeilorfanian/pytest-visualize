@@ -116,9 +116,6 @@
               </v-alert>
             </template>
             <template v-slot:prepend="{ item, open }">
-              <!-- <v-icon v-if="!item.isSingleTest && item.containsFailedTests" color="red">
-                {{ 'mdi-exclamation-thick' }}
-              </v-icon> -->
               <v-icon color="red" v-if="item.isPackage && item.containsFailedTests">
                 {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
               </v-icon>
@@ -254,8 +251,6 @@ export default {
         else if (localStorage.getItem('autoTests') === 'selected'){
           this.runSelectedTests();
         }
-        console.log('yes');
-        //this.runSelectedTests();
       }
     },
   },
