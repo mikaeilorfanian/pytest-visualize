@@ -228,8 +228,8 @@ export default {
           if (localStorage.getItem('auto') === 'true'){
             console.log('yes');
             //this.runSelectedTests();
+          }
       }
-        }
     },
   },
 };
