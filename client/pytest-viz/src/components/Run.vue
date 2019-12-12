@@ -1,28 +1,28 @@
 <template>
 
   <v-container>
-      <v-app-bar dark fixed dense>
-        <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-        <v-toolbar-title>Available Tests</v-toolbar-title>
-        <div class="text-center">
-          <v-btn class="ma-2" tile color="orange" light @click="collectTests()">Collect</v-btn>
+    <v-app-bar dark fixed dense>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-toolbar-title>Available Tests</v-toolbar-title>
+      <div class="text-center">
+        <v-btn class="ma-2" tile color="orange" light @click="collectTests()">Collect</v-btn>
         <v-avatar v-if="collectedTestsCount" color="orange" size="35">
           <span class="white--text headline">{{collectedTestsCount}}</span>
         </v-avatar>
-          <template v-if="nothingSelected(selection)">
-              <v-btn class="ma-2" tile color="green" @click="runAllTests()">Run All</v-btn>
-          </template>
-          <template v-else>
-              <v-btn class="ma-2" tile color="green" @click="runSelectedTests()">Run Selected</v-btn>
-          </template>
+        <template v-if="nothingSelected(selection)">
+            <v-btn class="ma-2" tile color="green" @click="runAllTests()">Run All</v-btn>
+        </template>
+        <template v-else>
+            <v-btn class="ma-2" tile color="green" @click="runSelectedTests()">Run Selected</v-btn>
+        </template>
         <v-avatar v-if="executedTestsCount" color="green" size="35">
           <span class="white--text headline">{{executedTestsCount}}</span>
         </v-avatar>
         <v-avatar v-if="failedTests.length > 0" color="red" size="35">
           <span class="white--text headline">{{failedTests.length}}</span>
         </v-avatar>
-        </div>
-      </v-app-bar>
+      </div>
+    </v-app-bar>
 
     <v-navigation-drawer
       v-model="drawer"
@@ -163,16 +163,6 @@
         <v-card-text v-model="error"><pre>{{error}}</pre></v-card-text>
       </v-card>
     </v-dialog>
-
-    <!-- <v-sheet 
-      color="black lighten-2" 
-      v-model="panel"
-      v-for="(test) in failedTests"
-      :key="test.id"
-      dark
-      >
-      <pre>{{test.errorRepr}}</pre>
-    </v-sheet> -->
 
     <template  v-if="userCodeFailure">
       <v-alert dense prominent type="error">
