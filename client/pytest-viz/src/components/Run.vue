@@ -47,6 +47,20 @@
       </v-list-item>
     </v-navigation-drawer>
 
+    <v-row no-gutters>
+      <v-col
+        cols="12"
+        sm="4"
+      >
+        <v-card
+          class="pa-2"
+          outlined
+          tile
+        >
+        </v-card>
+      </v-col>
+    </v-row>
+
     <v-row>
       <v-col class="pa-6">
         <template v-if="testCollectionInProgress">
