@@ -178,6 +178,10 @@
       </v-card>
     </v-dialog>
 
+    <v-alert v-if="alert" dense prominent type="warning">
+      Detected changes to tests, so I had to <b>Collect</b> again.
+    </v-alert>
+
     <template  v-if="userCodeFailure">
       <v-alert dense prominent type="error">
         Cannot collect or run tests! See below.
@@ -222,6 +226,7 @@ export default {
     autoTests: Config.getAutoTests(),
     collectedTestsCount: null,
     executedTestsCount: null,
+    alert: true,
   }),
   methods: {
     async collectTests () {

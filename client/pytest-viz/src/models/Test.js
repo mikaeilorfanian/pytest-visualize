@@ -31,6 +31,7 @@ class Synchronizer {
   userCodeUpdated(vueComponent){
     this.collectTests(vueComponent);
     vueComponent.executedTests = [];
+    vueComponent.alert = true;
   }
   handleError(response, vueComponent){
     if (response.data.error.code == 1001){
@@ -52,6 +53,7 @@ class Synchronizer {
       vueComponent.userCodeFailure = null;
       vueComponent.collectedTests = getCollectedTestsTree(resp);
       vueComponent.collectedTestsCount = resp.data.collectedTestsCount;
+      vueComponent.alert = null;
     }
   }
   async runAllTests(vueComponent){
@@ -90,6 +92,7 @@ class Synchronizer {
     vueComponent.failedTests = resp.data.failedTests;
     vueComponent.userCodeFailure = null;
     vueComponent.executedTestsCount = resp.data.executedTestsCount;
+    vueComponent.alert = null;
   }
 }
 
