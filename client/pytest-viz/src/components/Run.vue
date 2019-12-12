@@ -1,19 +1,28 @@
 <template>
 
   <v-container>
-      <v-app-bar dark fixed dense>
-        <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-        <v-toolbar-title>Available Tests</v-toolbar-title>
-        <div class="text-center">
-          <v-btn class="ma-2" tile color="orange" light @click="collectTests()">Collect</v-btn>
-          <template v-if="nothingSelected(selection)">
-              <v-btn class="ma-2" tile color="green" @click="runAllTests()">Run All</v-btn>
-          </template>
-          <template v-else>
-              <v-btn class="ma-2" tile color="green" @click="runSelectedTests()">Run Selected</v-btn>
-          </template>
-        </div>
-      </v-app-bar>
+    <v-app-bar dark fixed dense>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-toolbar-title>Available Tests</v-toolbar-title>
+      <div class="text-center">
+        <v-btn class="ma-2" tile color="orange" light @click="collectTests()">Collect</v-btn>
+        <v-avatar v-if="collectedTestsCount" color="orange" size="35">
+          <span class="white--text headline">{{collectedTestsCount}}</span>
+        </v-avatar>
+        <template v-if="nothingSelected(selection)">
+            <v-btn class="ma-2" tile color="blue" @click="runAllTests()">Run All</v-btn>
+        </template>
+        <template v-else>
+            <v-btn class="ma-2" tile color="blue" @click="runSelectedTests()">Run Selected</v-btn>
+        </template>
+        <v-avatar v-if="executedTestsCount" color="blue" size="35">
+          <span class="white--text headline">{{executedTestsCount}}</span>
+        </v-avatar>
+        <v-avatar v-if="failedTests.length > 0" color="red" size="35">
+          <span class="white--text headline">{{failedTests.length}}</span>
+        </v-avatar>
+      </div>
+    </v-app-bar>
 
     <v-navigation-drawer
       v-model="drawer"
@@ -37,6 +46,20 @@
         </v-radio-group>
       </v-list-item>
     </v-navigation-drawer>
+
+    <v-row no-gutters>
+      <v-col
+        cols="12"
+        sm="4"
+      >
+        <v-card
+          class="pa-2"
+          outlined
+          tile
+        >
+        </v-card>
+      </v-col>
+    </v-row>
 
     <v-row>
       <v-col class="pa-6">
@@ -155,16 +178,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- <v-sheet 
-      color="black lighten-2" 
-      v-model="panel"
-      v-for="(test) in failedTests"
-      :key="test.id"
-      dark
-      >
-      <pre>{{test.errorRepr}}</pre>
-    </v-sheet> -->
-
     <template  v-if="userCodeFailure">
       <v-alert dense prominent type="error">
         Cannot collect or run tests! See below.
@@ -207,6 +220,8 @@ export default {
     drawer: null,
     auto: Config.getAuto(),
     autoTests: Config.getAutoTests(),
+    collectedTestsCount: null,
+    executedTestsCount: null,
   }),
   methods: {
     async collectTests () {

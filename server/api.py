@@ -31,7 +31,10 @@ def collect_tests():
     if 'user_code_error' in g:
         raise UserCodeException(g.user_code_error)
 
-    return {'collectedTestsTree': g.collected_tests_tree.json}
+    return {
+        'collectedTestsTree': g.collected_tests_tree.json,
+        'collectedTestsCount': g.collected_tests_counter,
+    }
 
 
 @app.route('/tests/run', methods=['GET', 'POST'])
@@ -50,6 +53,7 @@ def run_tests():
             'collectedTestsTree': g.collected_tests_tree.json,
             'executedTestsTree': g.tests_tree.json,
             'failedTests': g.failed_tests,
+            'executedTestsCount': g.executed_tests_counter,
         }
     
     test_node_ids = request.json
@@ -82,6 +86,7 @@ def run_tests():
         'collectedTestsTree': g.collected_tests_tree.json,
         'executedTestsTree': g.tests_tree.json,
         'failedTests': g.failed_tests,
+        'executedTestsCount': g.executed_tests_counter,
     }
 
 
