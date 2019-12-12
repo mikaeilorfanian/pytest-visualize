@@ -10,12 +10,12 @@
           <span class="white--text headline">{{collectedTestsCount}}</span>
         </v-avatar>
         <template v-if="nothingSelected(selection)">
-            <v-btn class="ma-2" tile color="green" @click="runAllTests()">Run All</v-btn>
+            <v-btn class="ma-2" tile color="blue" @click="runAllTests()">Run All</v-btn>
         </template>
         <template v-else>
-            <v-btn class="ma-2" tile color="green" @click="runSelectedTests()">Run Selected</v-btn>
+            <v-btn class="ma-2" tile color="blue" @click="runSelectedTests()">Run Selected</v-btn>
         </template>
-        <v-avatar v-if="executedTestsCount" color="green" size="35">
+        <v-avatar v-if="executedTestsCount" color="blue" size="35">
           <span class="white--text headline">{{executedTestsCount}}</span>
         </v-avatar>
         <v-avatar v-if="failedTests.length > 0" color="red" size="35">
