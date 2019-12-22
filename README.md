@@ -1,3 +1,5 @@
+# What is `pytest-visualize`? Watch this!
+![](https://recordit.co/SVs4yGdpFc)
 # Housekeeping
 This project is managed using Github's tools like Issues, Pull requests, and Projects.
 ## Issues https://github.com/mikaeilorfanian/pytest-visualize/issues
