@@ -226,7 +226,7 @@ export default {
     autoTests: Config.getAutoTests(),
     collectedTestsCount: null,
     executedTestsCount: null,
-    alert: true,
+    alert: null,
   }),
   methods: {
     async collectTests () {
