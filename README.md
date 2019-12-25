@@ -21,5 +21,5 @@ Using the link above, you can track progress on
 - issues picked for implementation (To-do column)
 - work in progress
 - and finally issues which are "done"
-## Definition of "done"
+### Definition of "done"
 "done" here means that changes related to the issue have been merged with the master branch and can be used by end users.
