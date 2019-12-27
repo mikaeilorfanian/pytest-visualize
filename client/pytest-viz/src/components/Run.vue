@@ -5,7 +5,8 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>Available Tests</v-toolbar-title>
       <div class="text-center">
-        <v-btn class="ma-2" tile color="orange" light @click="collectTests()">Collect</v-btn>
+        <v-btn v-if="autoTests === 'path'" class="ma-2" tile color="orange" light @click="collectTestPaths()">Collect</v-btn>
+        <v-btn v-else class="ma-2" tile color="orange" light @click="collectTests()">Collect</v-btn>
         <v-avatar v-if="collectedTestsCount" color="orange" size="35">
           <span class="white--text headline">{{collectedTestsCount}}</span>
         </v-avatar>
@@ -264,6 +265,9 @@ export default {
   methods: {
     async collectTests () {
       syncer.collectTests(this);
+    },
+    async collectTestPaths(){
+      syncer.collectPaths(this);
     },
     async runAllTests () {
       syncer.runAllTests(this);
