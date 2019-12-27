@@ -316,14 +316,14 @@ export default {
   sockets: {
     connect: function () {
       console.log('socket connected to backend');
-      if (localStorage.getItem('auto') === 'true'){
-        if (localStorage.getItem('autoTests') === 'failed'){
+      if (localStorage.getItem('auto') === 'true'){  // Config.getAuto()
+        if (localStorage.getItem('autoTests') === 'failed'){  //Config.getAutoTests()
           this.runFailedTests();
         }
-        else if (localStorage.getItem('autoTests') === 'all'){
+        else if (localStorage.getItem('autoTests') === 'all'){  //Config.getAutoTests()
           this.runAllTests();
         }
-        else if (localStorage.getItem('autoTests') === 'selected'){
+        else if (localStorage.getItem('autoTests') === 'selected'){  //Config.getAutoTests()
           this.runSelectedTests();
         }
       }

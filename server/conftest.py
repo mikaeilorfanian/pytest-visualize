@@ -34,7 +34,7 @@ def pytest_collection_finish(session):
     Using flask's `g` object, we build a test tree which is returned to front-end.
     """
     try:
-        if 'collect_only' not in g or not g.collect_only:
+        if 'collect_only' not in g or not g.collect_only:  # TODO rename "collect_only" to "collect_tests"
             return
 
     except RuntimeError:  # when pytest is invoked outside flask's app context
