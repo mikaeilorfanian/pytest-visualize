@@ -9,5 +9,8 @@ export default {
     },
     runSelectedTests (nodeIDs) {
         return Api().post(`tests/run`, nodeIDs);
+    },
+    collectTestsPaths (){
+        return Api().get('collected_tests?paths=.');
     }
 }

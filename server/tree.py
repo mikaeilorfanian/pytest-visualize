@@ -92,6 +92,16 @@ class TesstKlass:
             'containsFailedTests': not self.passed,
         }
 
+    @property
+    def json_paths_only(self):
+        return {
+            'name': self.name,
+            'id': self._id,
+            'isKlass': True,
+            'children': [],
+            'containsFailedTests': not self.passed,
+        }
+
 
 @dataclass
 class TesstModule:
@@ -135,6 +145,16 @@ class TesstModule:
             'id': self._id,
             'isModule': True,
             'children': [child.json for child in self.children],
+            'containsFailedTests': not self.passed,
+        }
+
+    @property
+    def json_paths_only(self):
+        return {
+            'name': self.name,
+            'id': self._id,
+            'isModule': True,
+            'children': [child.json for child in self.children if isinstance(child, TesstKlass)],
             'containsFailedTests': not self.passed,
         }
 
@@ -196,6 +216,10 @@ class TesstPackage:
             'containsFailedTests': not self.passed,
         }
 
+    @property
+    def json_paths_only(self):
+        return self.json
+
 
 @dataclass
 class TreeRoot:
@@ -233,8 +257,12 @@ class TreeRoot:
     def json(self):
         return [child.json for child in self.children]
 
+    @property
+    def json_paths_only(self):
+        return [child.json_paths_only for child in self.children]
 
-def add_test_to_test_tree(test_item: Union[_pytest.python.Function, _pytest.reports.TestReport], flask_g, was_executed=True):
+
+def add_test_to_test_tree(test_item: Union[_pytest.python.Function, _pytest.reports.TestReport], flask_g, was_executed=True, paths_only=False):
     """
     This function is used during test collection and execution.
     It builds a tree structure suitable for rendering on the front-end.
@@ -271,12 +299,13 @@ def add_test_to_test_tree(test_item: Union[_pytest.python.Function, _pytest.repo
     if len(test_item.nodeid.split('::')) == 3:  # this is a test method, i.e. it's within a class
         test_method = TesstMethod.from_report(test_item, was_executed)
         test_class = module.get_or_add_klass(test_method.klass_name)
-        test_class.add_method(test_method)
+        if not paths_only:
+            test_class.add_method(test_method)
 
         if was_executed and not test_method.passed:
             flask_g.failed_tests.append(test_method.json)
 
-    else:  # this is a test function
+    elif not paths_only:  # this is a test function
         test_function = TesstFunction.from_report(test_item, was_executed)
         module.add_function(test_function)
 

@@ -37,6 +37,20 @@ def collect_tests():
     }
 
 
+@app.route('/collected_tests')
+def collected_tests():
+    g.collect_only = True
+    pytest.main(['--collect-only'])
+
+    if 'user_code_error' in g:
+        raise UserCodeException(g.user_code_error)
+
+    return {
+        'collectedTestsTree': g.collected_tests_tree.json_paths_only,
+        'collectedTestsCount': g.collected_tests_counter,
+    }
+
+
 @app.route('/tests/run', methods=['GET', 'POST'])
 def run_tests():
     g.run_tests = True
