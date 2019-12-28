@@ -26,7 +26,7 @@ def function_two():
 
 
 def test_add_function_to_module(function):
-    module = TesstModule('test_sth.py')
+    module = TesstModule('test_sth.py', '')
     module.add_function(function)
 
     assert len(module.json['children']) == 1
@@ -42,7 +42,7 @@ def test_add_function_to_module(function):
 
 
 def test_add_two_functions_to_module(function, function_two):
-    module = TesstModule('test_sth.py')
+    module = TesstModule('test_sth.py', '')
     module.add_function(function)
     module.add_function(function_two)
 
@@ -75,7 +75,7 @@ def failing_test_function():
 
 
 def test_add_failing_test_function_to_module(failing_test_function):
-    module = TesstModule('test_sth.py')
+    module = TesstModule('test_sth.py', '')
     module.add_function(failing_test_function)
 
     assert len(module.json['children']) == 1
@@ -83,7 +83,7 @@ def test_add_failing_test_function_to_module(failing_test_function):
 
 
 def test_add_a_mix_of_passing_and_failing_functions_to_module(failing_test_function, function):
-    module = TesstModule('test_sth.py')
+    module = TesstModule('test_sth.py', '')
     module.add_function(failing_test_function)
     module.add_function(function)
 
@@ -102,7 +102,7 @@ def klass_two():
 
 
 def test_add_one_class():
-    module = TesstModule('test_sth.py')
+    module = TesstModule('test_sth.py', '')
     assert module.json['containsFailedTests'] is False
     module.get_or_add_klass('TestKlass')
 
@@ -115,7 +115,7 @@ def test_add_one_class():
 
 
 def test_add_two_classses():
-    module = TesstModule('test_sth.py')
+    module = TesstModule('test_sth.py', '')
     module.get_or_add_klass('TestKlass')
     module.get_or_add_klass('TestKlass2')
 
@@ -132,7 +132,7 @@ def test_add_two_classses():
 
 
 def test_add_same_class_twice():
-    module = TesstModule('test_sth.py')
+    module = TesstModule('test_sth.py', '')
     module.get_or_add_klass('TestKlass')
     module.get_or_add_klass('TestKlass')
 
@@ -156,7 +156,7 @@ def failed_test_method():
 
 
 def test_add_klass_with_failing_test_to_module(failed_test_method):
-    module = TesstModule('test_sth.py')
+    module = TesstModule('test_sth.py', '')
     klass = module.get_or_add_klass('TestKlass')
     klass.add_method(failed_test_method)
 
