@@ -1,3 +1,4 @@
+import json
 import os
 
 from flask import Flask, jsonify
@@ -48,6 +49,30 @@ def collected_tests():
     return {
         'collectedTestsTree': g.collected_tests_tree.json_paths_only,
         'collectedTestsCount': g.collected_tests_counter,
+    }
+
+
+@app.route('/executed_tests')
+def executed_tests():
+    # prepare pytest plugins
+    g.run_tests = True
+    g.collect_only = True
+
+    # run pytest
+    pytest.main(json.loads(request.args.get('paths')))
+
+    # check for errors
+    if 'tests_tree' not in g or 'collected_tests_tree' not in g:
+        if 'user_code_error' in g:
+            raise UserCodeException(g.user_code_error)
+
+        return {'error': 'Collect tests again, tests are out of sync!'}
+
+    return {
+        'collectedTestsTree': g.collected_tests_tree.json,
+        'executedTestsTree': g.tests_tree.json,
+        'failedTests': g.failed_tests,
+        'executedTestsCount': g.executed_tests_counter,
     }
 
 
@@ -110,4 +135,7 @@ def run_tests():
 #     pytest.main([f'{node_id}'])
 #     return {'tests': g.tests}
 if __name__ == '__main__':
+    import os
+    os.environ['FLASK_APP'] = 'api.py'
+    os.environ['FLASK_ENV'] = 'development'
     socketio.run(app)

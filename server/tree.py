@@ -118,7 +118,7 @@ class TesstModule:
         if existing_klass:
             test_class = existing_klass
         else:
-            test_class = TesstKlass(class_name)
+            test_class = TesstKlass(class_name, str(self._id) + '::' + class_name)
             self.children.append(test_class)
 
         return test_class
@@ -303,7 +303,7 @@ def add_test_to_test_tree(test_item: Union[_pytest.python.Function, _pytest.repo
 
         if 'collected_tests_counter' not in flask_g:
             flask_g.collected_tests_counter = 0
-
+    print(test_item.nodeid)
     test_module_path = test_item.location[0]
     module = tree.get_or_create_module(test_module_path)
 

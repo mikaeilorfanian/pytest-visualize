@@ -94,20 +94,20 @@ class Synchronizer {
     vueComponent.executedTestsCount = resp.data.executedTestsCount;
     vueComponent.alert = null;
   }
-  // async runTestsInPaths(vueComponent){
-  //   const selectedPaths = getPathsFromTree(vueComponent.selection);
-  //   console.log(vueComponent.selection);
-  //   vueComponent.testExecutionInProgress = true;
-  //   const resp = await ApiService.runTestsForPaths(selectedPaths);
-  //   vueComponent.testExecutionInProgress = false;
-  //   if (resp.data.error){
-  //     this.handleError(resp, vueComponent);
-  //     vueComponent.executedTestsCount = null;
-  //   }
-  //   else{
-  //     this.processTestExecutionResponse(resp, vueComponent);
-  //   }
-  // }
+  async runTestsInPaths(vueComponent){
+    // const selectedPaths = getPathsFromTree(vueComponent.selection);
+    // console.log(vueComponent.selection);
+    vueComponent.testExecutionInProgress = true;
+    const resp = await ApiService.runTestsForPaths(vueComponent.selection);
+    vueComponent.testExecutionInProgress = false;
+    if (resp.data.error){
+      this.handleError(resp, vueComponent);
+      vueComponent.executedTestsCount = null;
+    }
+    else{
+      this.processTestExecutionResponse(resp, vueComponent);
+    }
+  }
   async collectPaths(vueComponent){
     vueComponent.testCollectionInProgress = true;
     const resp = await ApiService.collectTestsPaths();
