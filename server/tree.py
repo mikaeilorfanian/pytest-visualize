@@ -7,9 +7,6 @@ import _pytest
 
 
 def contains_failed_tests(children):
-    if len(children) == 0:
-        return False
-
     for child in children:
         if not child.passed:
             return True
