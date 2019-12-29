@@ -8,13 +8,6 @@ function getExecutedTestsTree(response) {
   return response.data.executedTestsTree;
 }
 
-// function findFailedTests(allExecutedTests){
-//   const firstTest = allExecutedTests[0].children[0];
-//   if (!firstTest.passed){  // TODO: finds only 1
-//     return [firstTest] ;
-//   }
-// }
-
 function getTestCasesOnly(allSelectedTests){  // TODO rename this function to getSelectedTestsFromTree
   return allSelectedTests.filter((selection) => {
       return selection.isSingleTest;
@@ -95,8 +88,6 @@ class Synchronizer {
     vueComponent.alert = null;
   }
   async runTestsInPaths(vueComponent){
-    // const selectedPaths = getPathsFromTree(vueComponent.selection);
-    // console.log(vueComponent.selection);
     vueComponent.testExecutionInProgress = true;
     const resp = await ApiService.runTestsForPaths(vueComponent.selection);
     vueComponent.testExecutionInProgress = false;

@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from random import randint
 from typing import List, Optional, Union
 
 import _pytest
@@ -303,7 +302,7 @@ def add_test_to_test_tree(test_item: Union[_pytest.python.Function, _pytest.repo
 
         if 'collected_tests_counter' not in flask_g:
             flask_g.collected_tests_counter = 0
-    print(test_item.nodeid)
+
     test_module_path = test_item.location[0]
     module = tree.get_or_create_module(test_module_path)
 
