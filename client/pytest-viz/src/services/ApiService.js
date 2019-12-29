@@ -12,7 +12,7 @@ export default {
     },
     runTestsForPaths (paths) {
         console.log(paths);
-        const pathsArr = Array.from(paths, pathObj => pathObj.id);
+        const pathsArr = Array.from(paths, pathObj => pathObj.path);
         return Api().get('executed_tests', {params: {'paths': JSON.stringify(pathsArr)}});
     },
     collectTestsPaths (){

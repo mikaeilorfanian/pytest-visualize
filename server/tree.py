@@ -118,7 +118,7 @@ class TesstModule:
         if existing_klass:
             test_class = existing_klass
         else:
-            test_class = TesstKlass(class_name, str(self._id) + '::' + class_name)
+            test_class = TesstKlass(class_name, str(self.path) + '::' + class_name)
             self.children.append(test_class)
 
         return test_class
@@ -152,7 +152,7 @@ class TesstModule:
             'name': self.name,
             'id': self._id,
             'isModule': True,
-            'children': [child.json for child in self.children if isinstance(child, TesstKlass)],
+            'children': [],
             'containsFailedTests': not self.passed,
             'path': str(self.path),
         }
