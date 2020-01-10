@@ -1,3 +1,5 @@
+# This Project Has Moved to Another Repo
+Due to major architectural changes to this project, I'm moving it to another repo. Stay tuned for updates. If you'd like to contribute, create an issue here so I'll give you access to the other repo. Otherwise, stay tuned for updates!
 # What is `pytest-visualize`? Watch this!
 ![](http://g.recordit.co/1owQ1nOk6J.gif)
 # Housekeeping
