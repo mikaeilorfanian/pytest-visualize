@@ -1,4 +1,5 @@
 from flask import g
+from flask import request
 import _pytest
 
 import tree
@@ -33,7 +34,7 @@ def pytest_collection_finish(session):
     Using flask's `g` object, we build a test tree which is returned to front-end.
     """
     try:
-        if 'collect_only' not in g or not g.collect_only:
+        if 'collect_only' not in g or not g.collect_only:  # TODO rename "collect_only" to "collect_tests"
             return
 
     except RuntimeError:  # when pytest is invoked outside flask's app context
@@ -42,7 +43,10 @@ def pytest_collection_finish(session):
         return
 
     for item in session.items:
-        tree.add_test_to_test_tree(item, g, was_executed=False)
+        paths_only = False
+        if request.args.get('paths'):
+            paths_only = True
+        tree.add_test_to_test_tree(item, g, was_executed=False, paths_only=paths_only)
 
 
 def pytest_exception_interact(node: _pytest.python.Module, call: _pytest.runner.CallInfo, report):

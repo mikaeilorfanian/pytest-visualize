@@ -1,15 +1,11 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from random import randint
 from typing import List, Optional, Union
 
 import _pytest
 
 
 def contains_failed_tests(children):
-    if len(children) == 0:
-        return False
-
     for child in children:
         if not child.passed:
             return True
@@ -92,10 +88,21 @@ class TesstKlass:
             'containsFailedTests': not self.passed,
         }
 
+    @property
+    def json_paths_only(self):
+        return {
+            'name': self.name,
+            'id': self._id,
+            'isKlass': True,
+            'children': [],
+            'containsFailedTests': not self.passed,
+        }
+
 
 @dataclass
 class TesstModule:
     name: str
+    path: Path
     _id: str = None
     children: List[Union[TesstKlass, TesstFunction]] = field(default_factory=list)
 
@@ -110,7 +117,7 @@ class TesstModule:
         if existing_klass:
             test_class = existing_klass
         else:
-            test_class = TesstKlass(class_name)
+            test_class = TesstKlass(class_name, str(self.path) + '::' + class_name)
             self.children.append(test_class)
 
         return test_class
@@ -138,17 +145,29 @@ class TesstModule:
             'containsFailedTests': not self.passed,
         }
 
+    @property
+    def json_paths_only(self):
+        return {
+            'name': self.name,
+            'id': self._id,
+            'isModule': True,
+            'children': [],
+            'containsFailedTests': not self.passed,
+            'path': str(self.path),
+        }
+
 
 @dataclass
 class TesstPackage:
     name: str
+    path: Path
     _id: str = None
     children: List[Union['TesstPackage', TesstModule]] = field(default_factory=list)
 
     def __post_init__(self):
         self._id = self.name
 
-    def get_or_create_module(self, path_to_test_module: str) -> TesstModule:
+    def get_or_create_module(self, path_to_test_module: str, parents_path: Path=None) -> TesstModule:
         test_module_path = Path(path_to_test_module)
         package_name = test_module_path.parts[0]
         if package_name != self.name:
@@ -160,12 +179,13 @@ class TesstPackage:
             for child in self.children:  # check if sub-package already exists
                 if isinstance(child, TesstPackage):
                     if child.name == test_module_path.parts[1]:
-                        return child.get_or_create_module(nested_path)
+                        return child.get_or_create_module(nested_path, parents_path=self.path)
 
             # sub-package doesn't exist
-            sub_package = TesstPackage(Path(nested_path).parts[0])
+            sub_package_name: str = Path(nested_path).parts[0]
+            sub_package = TesstPackage(sub_package_name, self.path / Path(sub_package_name))
             self.children.append(sub_package)
-            return sub_package.get_or_create_module(nested_path)
+            return sub_package.get_or_create_module(nested_path, parents_path=self.path)
 
         # not a nested path, this package should add the module
         module_name: str = test_module_path.parts[-1]
@@ -175,7 +195,10 @@ class TesstPackage:
                     return child
 
         # module doesn't exist so create it
-        test_module = TesstModule(module_name)
+        if parents_path:
+            test_module = TesstModule(module_name, parents_path / test_module_path)
+        else:
+            test_module = TesstModule(module_name, test_module_path)
         self.children.append(test_module)
         return test_module
 
@@ -196,6 +219,17 @@ class TesstPackage:
             'containsFailedTests': not self.passed,
         }
 
+    @property
+    def json_paths_only(self):
+        return {
+            'name': self.name,
+            'path': str(self.path),
+            'id': self._id,
+            'isPackage': True,
+            'children': [child.json_paths_only for child in self.children],
+            'containsFailedTests': not self.passed,
+        }
+
 
 @dataclass
 class TreeRoot:
@@ -210,7 +244,7 @@ class TreeRoot:
                     return child
 
             # create module since it doesn't exist
-            module = TesstModule(module_name)
+            module = TesstModule(module_name, Path(path_to_test_module))
             self.children.append(module)
             return module
 
@@ -222,7 +256,7 @@ class TreeRoot:
                     return child.get_or_create_module(path_to_test_module)
 
         # not an existing package so create a new TesstPackage
-        package = TesstPackage(package_name)
+        package = TesstPackage(package_name, Path(Path(path_to_test_module).parts[0]))
         self.children.append(package)
         return package.get_or_create_module(path_to_test_module)
 
@@ -233,8 +267,12 @@ class TreeRoot:
     def json(self):
         return [child.json for child in self.children]
 
+    @property
+    def json_paths_only(self):
+        return [child.json_paths_only for child in self.children]
 
-def add_test_to_test_tree(test_item: Union[_pytest.python.Function, _pytest.reports.TestReport], flask_g, was_executed=True):
+
+def add_test_to_test_tree(test_item: Union[_pytest.python.Function, _pytest.reports.TestReport], flask_g, was_executed=True, paths_only=False):
     """
     This function is used during test collection and execution.
     It builds a tree structure suitable for rendering on the front-end.
@@ -271,12 +309,13 @@ def add_test_to_test_tree(test_item: Union[_pytest.python.Function, _pytest.repo
     if len(test_item.nodeid.split('::')) == 3:  # this is a test method, i.e. it's within a class
         test_method = TesstMethod.from_report(test_item, was_executed)
         test_class = module.get_or_add_klass(test_method.klass_name)
-        test_class.add_method(test_method)
+        if not paths_only:
+            test_class.add_method(test_method)
 
         if was_executed and not test_method.passed:
             flask_g.failed_tests.append(test_method.json)
 
-    else:  # this is a test function
+    elif not paths_only:  # this is a test function
         test_function = TesstFunction.from_report(test_item, was_executed)
         module.add_function(test_function)
 

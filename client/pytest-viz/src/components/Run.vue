@@ -5,7 +5,8 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>Available Tests</v-toolbar-title>
       <div class="text-center">
-        <v-btn class="ma-2" tile color="orange" light @click="collectTests()">Collect</v-btn>
+        <v-btn v-if="autoTests === 'path'" class="ma-2" tile color="orange" light @click="collectTestPaths()">Collect</v-btn>
+        <v-btn v-else class="ma-2" tile color="orange" light @click="collectTests()">Collect</v-btn>
         <v-avatar v-if="collectedTestsCount" color="orange" size="35">
           <span class="white--text headline">{{collectedTestsCount}}</span>
         </v-avatar>
@@ -13,7 +14,12 @@
             <v-btn class="ma-2" tile color="blue" @click="runAllTests()">Run All</v-btn>
         </template>
         <template v-else>
+          <template v-if="autoTests === 'path'">
+            <v-btn class="ma-2" tile color="blue" @click="runSelectedPaths()">Run Paths</v-btn>
+          </template>
+          <template v-else>
             <v-btn class="ma-2" tile color="blue" @click="runSelectedTests()">Run Selected</v-btn>
+          </template>
         </template>
         <v-avatar v-if="executedTestsCount" color="blue" size="35">
           <span class="white--text headline">{{executedTestsCount}}</span>
@@ -43,6 +49,7 @@
           <v-radio v-if="auto" value="failed" label="Failed Tests"></v-radio>
           <v-radio v-if="auto" value="all" label="All Tests"></v-radio>
           <v-radio v-if="auto" value="selected" label="Only Selected Ones"></v-radio>
+          <v-radio v-if="auto" value="path" label="All Tests Within Selected Path(s)"></v-radio>
         </v-radio-group>
       </v-list-item>
     </v-navigation-drawer>
@@ -73,8 +80,34 @@
             ></v-progress-circular>
           </div>
         </template>
-        <template v-if="!collectedTests.length">
+        <template v-if="!collectedTests.length && !collectedPaths.length">
           Collect tests to see them here!
+        </template>
+        <template v-if="autoTests === 'path'">
+          <v-treeview
+            v-model="selection"
+            :items="collectedPaths"
+            item-key="id"
+            selectable
+            return-object
+            open-on-click
+            item-disabled="isSingleTest"
+          >
+            <template v-slot:prepend="{ item, open }">
+              <v-icon v-if="item.isPackage">
+                {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
+              </v-icon>
+              <v-icon v-else-if="item.isModule">
+                {{ 'mdi-language-python' }}
+              </v-icon>
+              <v-icon v-else-if="item.isKlass">
+                {{ 'mdi-file-table-box-multiple-outline' }}
+              </v-icon>
+              <v-icon v-else>
+                {{ 'mdi-flash-outline' }}
+              </v-icon>
+            </template>
+          </v-treeview>
         </template>
         <template v-else>
           <v-treeview
@@ -210,6 +243,7 @@ export default {
 
   data: () => ({
     collectedTests: [],
+    collectedPaths: [],
     selection: [],
     executedTests: [],
     active: [],
@@ -232,25 +266,39 @@ export default {
     async collectTests () {
       syncer.collectTests(this);
     },
+    async collectTestPaths(){
+      syncer.collectPaths(this);
+    },
     async runAllTests () {
       syncer.runAllTests(this);
     },
     async runSelectedTests () {
       syncer.runSelectedTests(this);
     },
+    async runSelectedPaths() {
+      if (!this.collectedPaths){
+        syncer.collectPaths(this);
+      }
+      syncer.runTestsInPaths(this);
+    },
     async runFailedTests(){
       syncer.runFailedTests(this);
     },
     nothingSelected (selection) {
-        const selectedTests = Test.getTestCasesOnly(selection);
-        return selectedTests.length < 1;
+      if (this.autoTests === 'path'){
+        var selectedTests = selection;
+      }
+      else{
+        var selectedTests = Test.getTestCasesOnly(selection);
+      }
+
+      return selectedTests.length < 1;
     },
     showErrorDialog (selected) {
       if (selected.length) {
         this.error = selected[0].errorRepr;
         this.dialog = true;
       }
-      
     },
     saveAutoConfig (){
       Config.saveAutoConfig(this);
@@ -259,18 +307,27 @@ export default {
       Config.saveAutoTestsConfig(this);
     }
   },
-
+  watch : {
+    autoTests: function (val){
+      if (val === 'path'){
+        syncer.collectPaths(this);
+      }
+      else{
+        syncer.resetCollectedPaths(this);
+      }
+    }
+  },
   sockets: {
     connect: function () {
       console.log('socket connected to backend');
-      if (localStorage.getItem('auto') === 'true'){
-        if (localStorage.getItem('autoTests') === 'failed'){
+      if (localStorage.getItem('auto') === 'true'){  // Config.getAuto()
+        if (localStorage.getItem('autoTests') === 'failed'){  //Config.getAutoTests()
           this.runFailedTests();
         }
-        else if (localStorage.getItem('autoTests') === 'all'){
+        else if (localStorage.getItem('autoTests') === 'all'){  //Config.getAutoTests()
           this.runAllTests();
         }
-        else if (localStorage.getItem('autoTests') === 'selected'){
+        else if (localStorage.getItem('autoTests') === 'selected'){  //Config.getAutoTests()
           this.runSelectedTests();
         }
       }
